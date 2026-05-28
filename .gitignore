@@ -1,0 +1,38 @@
+# Results and output
+results/
+*.json
+!etc/*.json
+
+# State files
+.local/
+state/
+
+# Config files with secrets
+recond.yaml
+recond.yml
+.recond.yaml
+.recond.yml
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+*.sublime-*
+
+# Temporary files
+*.tmp
+*.bak
+*.log
+
+# Lock files (batch processing)
+*.lock
+
+# Test output
+test-results/
+coverage/

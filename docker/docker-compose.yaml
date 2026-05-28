@@ -1,0 +1,90 @@
+# Docker Compose for recond - Infrastructure reconnaissance toolkit
+#
+# Usage:
+#   docker-compose run --rm recond example.com
+#   docker-compose run --rm recond --json example.com
+#   docker-compose run --rm recond --batch /data/targets.txt
+#
+
+services:
+  recond:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: recond:latest
+    container_name: recond
+    user: recond
+
+    # Mount volumes for persistent data
+    volumes:
+      # Results output directory
+      - ./results:/home/recond/.local/share/recond/results
+
+      # State directory for batch processing
+      - ./state:/home/recond/.local/share/recond/state
+
+      # Custom config (optional)
+      - ./config:/home/recond/.config/recond:ro
+
+      # Input files for batch processing
+      - ./data:/data:ro
+
+    # Environment variables
+    environment:
+      - RECOND_OUTPUT_FORMAT=${RECOND_OUTPUT_FORMAT:-terminal}
+      - RECOND_COLOR=${RECOND_COLOR:-auto}
+      - RECOND_DEBUG=${RECOND_DEBUG:-0}
+      # API keys (optional)
+      - RECOND_API_SHODAN=${RECOND_API_SHODAN:-}
+      - RECOND_API_SECURITYTRAILS=${RECOND_API_SECURITYTRAILS:-}
+
+    # Network settings
+    networks:
+      - recond-net
+
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 128M
+
+    # Security settings
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp:size=64M,mode=1777
+
+    # Default command (override with docker-compose run)
+    command: ["--help"]
+
+  # Batch processing service with extended resources
+  recond-batch:
+    extends:
+      service: recond
+    container_name: recond-batch
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 1G
+        reservations:
+          cpus: '1'
+          memory: 256M
+    # Keep running for batch operations
+    stdin_open: true
+    tty: true
+    command: ["--batch", "/data/targets.txt", "--parallel", "4"]
+
+networks:
+  recond-net:
+    driver: bridge
+
+# Volume definitions (for named volumes if preferred)
+# volumes:
+#   recond-results:
+#   recond-state:

@@ -1,0 +1,119 @@
+# Default subdomain wordlist for recon
+# Lines starting with # are comments
+# One subdomain per line
+
+# Common application subdomains
+www
+app
+api
+blog
+docs
+developer
+dev
+help
+support
+status
+mail
+admin
+staging
+test
+beta
+
+# CDN and assets
+cdn
+assets
+static
+cdn1
+cdn2
+images
+img
+files
+upload
+media
+
+# WebSocket and API
+ws
+graphql
+
+# Authentication
+oauth
+auth
+sso
+login
+portal
+dashboard
+
+# Admin/management
+admin2
+console
+manage
+git
+gitlab
+ci
+
+# Monitoring
+metrics
+grafana
+kibana
+elastic
+
+# Internal
+internal
+corp
+vpn
+intranet
+
+# Billing
+billing
+payments
+stripe
+
+# Integrations
+integrations
+connect
+webhooks
+events
+
+# Mobile
+mobile
+m
+ios
+android
+
+# Staging/testing
+sandbox
+demo
+preview
+
+# Email
+smtp
+email
+imap
+calendar
+
+# Communication
+voip
+phone
+sip
+call
+
+# Analytics
+search
+analytics
+tracking
+
+# Data
+db
+database
+redis
+cache
+
+# Background processing
+queue
+jobs
+workers
+
+# Reporting
+reporting
+reports
+export

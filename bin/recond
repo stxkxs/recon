@@ -1,0 +1,540 @@
+#!/usr/bin/env bash
+#
+# recond - Infrastructure reconnaissance tool
+#
+# Requires: bash 4.0+ (for associative arrays)
+#
+# A modular, config-driven reconnaissance toolkit for SRE and security teams.
+#
+# Usage:
+#   recond [options] <target>
+#   recond --batch <targets_file> [options]
+#
+# Examples:
+#   recond example.com                     # Full scan, terminal output
+#   recond --json example.com              # Full scan, JSON output
+#   recond --modules dns,ssl example.com   # Only DNS and SSL modules
+#   recond 192.168.1.1                     # IP reconnaissance
+#   recond --batch targets.txt --parallel 4  # Batch processing
+#   recond --report out.html example.com   # Generate HTML report
+#
+
+set -euo pipefail
+
+# Require bash 4+ for associative arrays
+if [[ "${BASH_VERSINFO[0]}" -lt 4 ]]; then
+    echo "Error: bash 4.0 or higher is required (you have ${BASH_VERSION})" >&2
+    echo "On macOS, install with: brew install bash" >&2
+    exit 1
+fi
+
+# Determine script directory and project root
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+
+# Source core libraries
+source "${PROJECT_ROOT}/lib/core/common.sh"
+source "${PROJECT_ROOT}/lib/core/config.sh"
+source "${PROJECT_ROOT}/lib/core/input.sh"
+source "${PROJECT_ROOT}/lib/core/output.sh"
+source "${PROJECT_ROOT}/lib/core/state.sh"
+source "${PROJECT_ROOT}/lib/core/ui.sh"
+source "${PROJECT_ROOT}/lib/core/report.sh"
+
+# Source modules
+source "${PROJECT_ROOT}/lib/modules/dns.sh"
+source "${PROJECT_ROOT}/lib/modules/subdomain.sh"
+source "${PROJECT_ROOT}/lib/modules/ssl.sh"
+source "${PROJECT_ROOT}/lib/modules/http.sh"
+source "${PROJECT_ROOT}/lib/modules/whois.sh"
+source "${PROJECT_ROOT}/lib/modules/files.sh"
+source "${PROJECT_ROOT}/lib/modules/tech.sh"
+source "${PROJECT_ROOT}/lib/modules/ip.sh"
+source "${PROJECT_ROOT}/lib/modules/ports.sh"
+source "${PROJECT_ROOT}/lib/modules/cors.sh"
+source "${PROJECT_ROOT}/lib/modules/score.sh"
+source "${PROJECT_ROOT}/lib/modules/crt.sh"
+source "${PROJECT_ROOT}/lib/modules/shodan.sh"
+source "${PROJECT_ROOT}/lib/modules/virustotal.sh"
+source "${PROJECT_ROOT}/lib/modules/waf.sh"
+source "${PROJECT_ROOT}/lib/modules/dnssec.sh"
+source "${PROJECT_ROOT}/lib/modules/takeover.sh"
+source "${PROJECT_ROOT}/lib/modules/wayback.sh"
+source "${PROJECT_ROOT}/lib/modules/securitytrails.sh"
+source "${PROJECT_ROOT}/lib/modules/reverseip.sh"
+source "${PROJECT_ROOT}/lib/modules/asn.sh"
+source "${PROJECT_ROOT}/lib/modules/axfr.sh"
+source "${PROJECT_ROOT}/lib/modules/methods.sh"
+source "${PROJECT_ROOT}/lib/modules/dirs.sh"
+source "${PROJECT_ROOT}/lib/modules/jsanalysis.sh"
+source "${PROJECT_ROOT}/lib/modules/favicon.sh"
+source "${PROJECT_ROOT}/lib/modules/emailsec.sh"
+
+# Source batch processing
+source "${PROJECT_ROOT}/lib/batch/runner.sh"
+source "${PROJECT_ROOT}/lib/batch/progress.sh"
+
+# Available modules
+declare -A MODULES=(
+    [dns]="dns_run:dns_print:dns_check"
+    [subdomain]="subdomain_run:subdomain_print:subdomain_check"
+    [ssl]="ssl_run:ssl_print:ssl_check"
+    [http]="http_run:http_print:http_check"
+    [whois]="whois_run:whois_print:whois_check"
+    [files]="files_run:files_print:files_check"
+    [tech]="tech_run:tech_print:tech_check"
+    [ip]="ip_run:ip_print:ip_check"
+    [ports]="ports_run:ports_print:ports_check"
+    [cors]="cors_run:cors_print:cors_check"
+    [score]="score_run:score_print:score_check"
+    [crt]="crt_run:crt_print:crt_check"
+    [shodan]="shodan_run:shodan_print:shodan_check"
+    [virustotal]="virustotal_run:virustotal_print:virustotal_check"
+    [waf]="waf_run:waf_print:waf_check"
+    [dnssec]="dnssec_run:dnssec_print:dnssec_check"
+    [takeover]="takeover_run:takeover_print:takeover_check"
+    [wayback]="wayback_run:wayback_print:wayback_check"
+    [securitytrails]="securitytrails_run:securitytrails_print:securitytrails_check"
+    [reverseip]="reverseip_run:reverseip_print:reverseip_check"
+    [asn]="asn_run:asn_print:asn_check"
+    [axfr]="axfr_run:axfr_print:axfr_check"
+    [methods]="methods_run:methods_print:methods_check"
+    [dirs]="dirs_run:dirs_print:dirs_check"
+    [jsanalysis]="jsanalysis_run:jsanalysis_print:jsanalysis_check"
+    [favicon]="favicon_run:favicon_print:favicon_check"
+    [emailsec]="emailsec_run:emailsec_print:emailsec_check"
+)
+
+# Default module order for domain targets
+DOMAIN_MODULES=(dns subdomain crt ssl http whois files tech ports cors waf dnssec shodan virustotal wayback securitytrails axfr methods dirs jsanalysis favicon)
+
+# Default module order for IP targets
+IP_MODULES=(ip ports shodan virustotal reverseip asn)
+
+# Print usage
+usage() {
+    cat << 'EOF'
+Usage: recond [options] <target>
+       recond --batch <targets_file> [options]
+
+Infrastructure reconnaissance tool for SRE and security teams.
+
+Arguments:
+  <target>              Domain or IP address to scan
+
+Options:
+  -h, --help            Show this help message
+  -v, --version         Show version information
+  -j, --json            Output results as JSON
+  -o, --output FILE     Write output to file
+  -m, --modules LIST    Comma-separated list of modules to run
+                        Available: dns,subdomain,crt,ssl,http,whois,files,
+                                   tech,ip,ports,cors,waf,dnssec,shodan,
+                                   virustotal,takeover,wayback,securitytrails,
+                                   reverseip,asn,axfr,methods,dirs,jsanalysis,
+                                   favicon,emailsec
+  -c, --config FILE     Use custom config file
+  -q, --quiet           Suppress banner and progress output
+  -s, --score           Run security scoring after scan
+  -r, --report FILE     Generate HTML report to file
+  --list-modules        List available modules
+
+Batch Processing:
+  -b, --batch FILE      Process multiple targets from file
+  -p, --parallel N      Number of parallel workers (default: 4)
+  --resume              Resume interrupted batch
+  --lock                Use lock file to prevent concurrent runs
+  --list-batches        List recent batch runs
+
+Examples:
+  recond example.com                       # Full scan
+  recond --json example.com > result.json  # JSON output
+  recond -m dns,ssl example.com            # Only DNS and SSL
+  recond -s example.com                    # Full scan with security score
+  recond 8.8.8.8                           # IP reconnaissance
+  recond --batch targets.txt -p 8          # Batch with 8 workers
+  recond --report report.html example.com  # Generate HTML report
+  recond --resume                          # Resume last batch
+EOF
+    exit 0
+}
+
+# Print version
+version() {
+    echo "recond version ${RECOND_VERSION}"
+    exit 0
+}
+
+# List available modules
+list_modules() {
+    echo "Available modules:"
+    echo ""
+    echo "  dns        - DNS record enumeration (A, AAAA, MX, TXT, NS, CAA, DMARC, DKIM)"
+    echo "  subdomain  - Common subdomain discovery"
+    echo "  ssl        - SSL/TLS certificate analysis"
+    echo "  http       - HTTP header and security header analysis"
+    echo "  whois      - WHOIS lookups on discovered IPs"
+    echo "  files      - Common files check (robots.txt, security.txt, etc.)"
+    echo "  tech       - Technology detection (frameworks, CDN, analytics)"
+    echo "  ip         - IP-specific reconnaissance (reverse DNS, ASN, geolocation)"
+    echo "  ports      - TCP port scanning (common service ports)"
+    echo "  cors       - CORS misconfiguration detection"
+    echo "  score      - Security posture scoring (run with -s flag)"
+    echo "  crt        - Certificate Transparency log search (crt.sh)"
+    echo "  shodan     - Shodan host intelligence (API key required)"
+    echo "  virustotal - VirusTotal reputation analysis (API key required)"
+    echo "  waf        - WAF/CDN/firewall detection"
+    echo "  dnssec     - DNSSEC validation and chain verification"
+    echo "  takeover   - Subdomain takeover detection (run with scan data)"
+    echo "  wayback    - Wayback Machine URL discovery"
+    echo "  securitytrails - SecurityTrails domain intelligence (API key required)"
+    echo "  reverseip  - Reverse IP lookup (HackerTarget)"
+    echo "  asn        - ASN expansion and prefix enumeration"
+    echo "  axfr       - DNS zone transfer testing"
+    echo "  methods    - HTTP methods enumeration"
+    echo "  dirs       - Directory and sensitive file discovery"
+    echo "  jsanalysis - JavaScript file analysis"
+    echo "  favicon    - Favicon hash fingerprinting"
+    echo "  emailsec   - Email security analysis (SPF/DMARC/DKIM/BIMI)"
+    echo ""
+    echo "Default for domains: ${DOMAIN_MODULES[*]}"
+    echo "Default for IPs: ${IP_MODULES[*]}"
+    exit 0
+}
+
+# Generate summary for terminal output
+generate_summary() {
+    local domain=$1
+    local target_type=$2
+
+    header "SUMMARY"
+
+    echo -e "${BOLD}Target:${NC} $domain"
+    echo -e "${BOLD}Type:${NC} $target_type"
+    echo -e "${BOLD}Scan Date:${NC} $(date '+%Y-%m-%d %H:%M:%S %Z')"
+    echo ""
+
+    if [[ "$target_type" == "domain" ]]; then
+        local ns
+        ns=$(dig +short "$domain" NS 2>/dev/null | head -1) || true
+        local ip
+        ip=$(dig +short "$domain" A 2>/dev/null | head -1) || true
+        local mx
+        mx=$(dig +short "$domain" MX 2>/dev/null | head -1 | awk '{print $2}') || true
+
+        [[ -n "$ns" ]] && echo -e "${BOLD}DNS Provider:${NC} $ns"
+        [[ -n "$ip" ]] && echo -e "${BOLD}Primary IP:${NC} $ip"
+        [[ -n "$mx" ]] && echo -e "${BOLD}Mail Provider:${NC} $mx"
+    fi
+}
+
+# Run reconnaissance on a single target
+run_recon() {
+    local target=$1
+    local original_target=$2
+    local run_score=$3
+    local modules_to_run=("${@:4}")
+
+    local target_type
+    target_type=$(detect_input_type "$target")
+
+    # Initialize JSON result
+    local json_result
+    json_result=$(json_init "$original_target" "$target")
+
+    # Determine which modules to run
+    if [[ ${#modules_to_run[@]} -eq 0 ]]; then
+        if [[ "$target_type" == "$INPUT_TYPE_IPV4" ]] || [[ "$target_type" == "$INPUT_TYPE_IPV6" ]]; then
+            modules_to_run=("${IP_MODULES[@]}")
+        else
+            modules_to_run=("${DOMAIN_MODULES[@]}")
+        fi
+    fi
+
+    # Run each module
+    for module in "${modules_to_run[@]}"; do
+        # Skip post-scan modules here - they run after everything else
+        [[ "$module" == "score" ]] && continue
+        [[ "$module" == "takeover" ]] && continue
+        [[ "$module" == "emailsec" ]] && continue
+
+        if [[ ! -v "MODULES[$module]" ]]; then
+            warn "Unknown module: $module"
+            continue
+        fi
+
+        # Parse module functions
+        IFS=':' read -r run_func print_func check_func <<< "${MODULES[$module]}"
+
+        # Check dependencies
+        if ! $check_func 2>/dev/null; then
+            json_result=$(echo "$json_result" | json_add_error "$module" "$target" "missing dependencies")
+            continue
+        fi
+
+        # Run module
+        local module_result
+        local module_status="success"
+
+        if module_result=$($run_func "$target" 2>&1); then
+            # Validate JSON
+            if ! echo "$module_result" | jq . >/dev/null 2>&1; then
+                module_result='{"error": "invalid output"}'
+                module_status="failed"
+            fi
+        else
+            module_result='{"error": "execution failed"}'
+            module_status="failed"
+            json_result=$(echo "$json_result" | json_add_error "$module" "$target" "execution failed")
+        fi
+
+        # Add to JSON result
+        json_result=$(echo "$json_result" | json_add_result "$module" "$module_status" "$module_result")
+
+        # Terminal output (to stderr so it's not captured in subshell)
+        if [[ "$RECOND_OUTPUT_FORMAT" != "json" ]]; then
+            $print_func "$module_result" "$target" >&2 2>/dev/null || true
+        fi
+    done
+
+    # Run email security analysis if requested (post-scan module)
+    if [[ " ${modules_to_run[*]} " == *" emailsec "* ]]; then
+        local pre_emailsec_json
+        pre_emailsec_json=$(echo "$json_result" | json_finalize)
+        local emailsec_result
+        export RECOND_SCAN_JSON="$pre_emailsec_json"
+        if emailsec_result=$(emailsec_run "$target" 2>&1); then
+            if echo "$emailsec_result" | jq . >/dev/null 2>&1; then
+                json_result=$(echo "$json_result" | json_add_result "emailsec" "success" "$emailsec_result")
+                if [[ "$RECOND_OUTPUT_FORMAT" != "json" ]]; then
+                    emailsec_print "$emailsec_result" "$target" >&2 2>/dev/null || true
+                fi
+            fi
+        fi
+        unset RECOND_SCAN_JSON
+    fi
+
+    # Run security scoring if requested
+    if [[ "$run_score" == "true" ]]; then
+        # Finalize first to get complete JSON for scoring
+        local pre_score_json
+        pre_score_json=$(echo "$json_result" | json_finalize)
+
+        # Pass full scan results to score module
+        local score_result
+        export RECOND_SCAN_JSON="$pre_score_json"
+        if score_result=$(score_run "$target" 2>&1); then
+            if echo "$score_result" | jq . >/dev/null 2>&1; then
+                json_result=$(echo "$json_result" | json_add_result "score" "success" "$score_result")
+                if [[ "$RECOND_OUTPUT_FORMAT" != "json" ]]; then
+                    score_print "$score_result" "$target" >&2 2>/dev/null || true
+                fi
+            fi
+        fi
+        unset RECOND_SCAN_JSON
+    fi
+
+    # Run takeover detection if requested
+    if [[ " ${modules_to_run[*]} " == *" takeover "* ]]; then
+        local pre_takeover_json
+        pre_takeover_json=$(echo "$json_result" | json_finalize)
+        local takeover_result
+        export RECOND_SCAN_JSON="$pre_takeover_json"
+        if takeover_result=$(takeover_run "$target" 2>&1); then
+            if echo "$takeover_result" | jq . >/dev/null 2>&1; then
+                json_result=$(echo "$json_result" | json_add_result "takeover" "success" "$takeover_result")
+                if [[ "$RECOND_OUTPUT_FORMAT" != "json" ]]; then
+                    takeover_print "$takeover_result" "$target" >&2 2>/dev/null || true
+                fi
+            fi
+        fi
+        unset RECOND_SCAN_JSON
+    fi
+
+    # Finalize JSON
+    json_result=$(echo "$json_result" | json_finalize)
+
+    # Output JSON result
+    echo "$json_result"
+}
+
+# Main function
+main() {
+    # Default options
+    local output_format="terminal"
+    local output_file=""
+    local config_file=""
+    local modules=""
+    local quiet=false
+    local batch_file=""
+    local parallel=4
+    local resume=false
+    local use_lock=false
+    local target=""
+    local run_score=false
+    local report_file=""
+
+    # Parse arguments
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            -h|--help)
+                usage
+                ;;
+            -v|--version)
+                version
+                ;;
+            -j|--json)
+                output_format="json"
+                shift
+                ;;
+            -o|--output)
+                output_file="$2"
+                shift 2
+                ;;
+            -m|--modules)
+                modules="$2"
+                shift 2
+                ;;
+            -c|--config)
+                config_file="$2"
+                shift 2
+                ;;
+            -q|--quiet)
+                quiet=true
+                shift
+                ;;
+            -s|--score)
+                run_score=true
+                shift
+                ;;
+            -r|--report)
+                report_file="$2"
+                shift 2
+                ;;
+            --list-modules)
+                list_modules
+                ;;
+            -b|--batch)
+                batch_file="$2"
+                shift 2
+                ;;
+            -p|--parallel)
+                parallel="$2"
+                shift 2
+                ;;
+            --resume)
+                resume=true
+                shift
+                ;;
+            --lock)
+                use_lock=true
+                shift
+                ;;
+            --list-batches)
+                batch_list
+                exit 0
+                ;;
+            -*)
+                error "Unknown option: $1"
+                echo "Use --help for usage information"
+                exit 1
+                ;;
+            *)
+                target="$1"
+                shift
+                ;;
+        esac
+    done
+
+    # Load configuration
+    load_config "$config_file"
+
+    # Apply output format
+    export RECOND_OUTPUT_FORMAT="$output_format"
+
+    # Handle resume
+    if [[ "$resume" == true ]]; then
+        batch_resume
+        exit $?
+    fi
+
+    # Handle batch mode
+    if [[ -n "$batch_file" ]]; then
+        local output_dir
+        output_dir=$(config_get "global.output_dir" "./results")
+        batch_run "$batch_file" "$parallel" "$output_dir" "$modules" false
+        exit $?
+    fi
+
+    # Validate target
+    if [[ -z "$target" ]]; then
+        error "No target specified"
+        echo "Use --help for usage information"
+        exit 1
+    fi
+
+    # Check dependencies
+    if ! check_dependencies dig curl openssl whois jq; then
+        exit 1
+    fi
+
+    # Normalize target
+    local original_target="$target"
+    target=$(normalize_target "$target")
+
+    # Validate target
+    if ! validate_target "$target"; then
+        error "Invalid target: $original_target"
+        exit 1
+    fi
+
+    # Print banner (unless quiet or JSON)
+    if [[ "$quiet" != true ]] && [[ "$output_format" != "json" ]]; then
+        ui_banner
+        echo -e "  Target: ${CYAN}$target${NC}"
+        echo ""
+    fi
+
+    # Parse modules
+    local modules_array=()
+    if [[ -n "$modules" ]]; then
+        IFS=',' read -ra modules_array <<< "$modules"
+    fi
+
+    # If report is requested, enable score automatically
+    if [[ -n "$report_file" ]]; then
+        run_score=true
+    fi
+
+    # Run reconnaissance
+    local result
+    result=$(run_recon "$target" "$original_target" "$run_score" "${modules_array[@]}")
+
+    # Display output
+    if [[ "$output_format" == "json" ]]; then
+        echo "$result" | jq .
+    else
+        # For terminal, we already printed module outputs
+        generate_summary "$target" "$(detect_input_type "$target")"
+        echo -e "\n${GREEN}Scan complete.${NC}\n"
+    fi
+
+    # Write to file if specified
+    if [[ -n "$output_file" ]]; then
+        echo "$result" | jq . > "$output_file" 2>/dev/null || echo "$result" > "$output_file"
+        if [[ "$output_format" != "json" ]]; then
+            info "Results saved to: $output_file"
+        fi
+    fi
+
+    # Generate HTML report if specified
+    if [[ -n "$report_file" ]]; then
+        report_generate "$result" "$report_file" >/dev/null
+        if [[ "$output_format" != "json" ]]; then
+            info "HTML report saved to: $report_file"
+        fi
+    fi
+}
+
+# Run main
+main "$@"
