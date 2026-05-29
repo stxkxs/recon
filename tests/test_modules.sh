@@ -10,7 +10,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
 # Force colors for test output
-export RECOND_COLOR=always
+export RECON_COLOR=always
 
 # Source required libraries
 source "${PROJECT_ROOT}/lib/core/common.sh"
@@ -635,7 +635,7 @@ assert_json_has_key "$result" "vulnerable" "takeover result has vulnerable key"
 assert_json_has_key "$result" "checked" "takeover result has checked key"
 assert_json_has_key "$result" "findings" "takeover result has findings key"
 
-# Test takeover_run with mock RECOND_SCAN_JSON
+# Test takeover_run with mock RECON_SCAN_JSON
 mock_scan_json=$(jq -n '{
     results: {
         subdomain: {
@@ -648,9 +648,9 @@ mock_scan_json=$(jq -n '{
         }
     }
 }')
-export RECOND_SCAN_JSON="$mock_scan_json"
+export RECON_SCAN_JSON="$mock_scan_json"
 result_with_data=$(takeover_run "example.com" 2>/dev/null)
-unset RECOND_SCAN_JSON
+unset RECON_SCAN_JSON
 assert_json_valid "$result_with_data" "takeover_run with mock scan data returns valid JSON"
 assert_json_value "$result_with_data" "total_subdomains" "2" "takeover counts 2 subdomains from mock data"
 
@@ -693,8 +693,8 @@ done
 assert_equals "securitytrails" "$MODULE_SECURITYTRAILS_NAME" "MODULE_SECURITYTRAILS_NAME is correct"
 
 # Test no-API-key graceful handling
-unset RECOND_API_SECURITYTRAILS 2>/dev/null || true
-RECOND_CONFIG[api_keys.securitytrails]=""
+unset RECON_API_SECURITYTRAILS 2>/dev/null || true
+RECON_CONFIG[api_keys.securitytrails]=""
 result=$(securitytrails_run "example.com" 2>/dev/null)
 assert_json_valid "$result" "securitytrails_run without API key returns valid JSON"
 assert_json_has_key "$result" "error" "securitytrails result has error field"
@@ -863,7 +863,7 @@ _init_config_defaults
 # Test new module defaults exist
 for mod in crt shodan virustotal waf dnssec takeover wayback securitytrails reverseip asn axfr methods dirs jsanalysis favicon emailsec; do
     ((TESTS_RUN++)) || true
-    if [[ -v "RECOND_CONFIG[modules.${mod}.enabled]" ]]; then
+    if [[ -v "RECON_CONFIG[modules.${mod}.enabled]" ]]; then
         ((TESTS_PASSED++)) || true
         echo -e "${GREEN}✓${NC} Config default exists: modules.${mod}.enabled"
     else
@@ -875,9 +875,9 @@ done
 # Test new timeout defaults
 for mod in crt waf dnssec takeover shodan virustotal wayback securitytrails reverseip asn axfr methods dirs jsanalysis favicon emailsec; do
     ((TESTS_RUN++)) || true
-    if [[ -v "RECOND_CONFIG[timeouts.${mod}]" ]]; then
+    if [[ -v "RECON_CONFIG[timeouts.${mod}]" ]]; then
         ((TESTS_PASSED++)) || true
-        echo -e "${GREEN}✓${NC} Timeout default exists: timeouts.${mod}=${RECOND_CONFIG[timeouts.${mod}]}"
+        echo -e "${GREEN}✓${NC} Timeout default exists: timeouts.${mod}=${RECON_CONFIG[timeouts.${mod}]}"
     else
         ((TESTS_FAILED++)) || true
         echo -e "${RED}✗${NC} Timeout default missing: timeouts.${mod}"
@@ -886,7 +886,7 @@ done
 
 # Test virustotal API key config exists
 ((TESTS_RUN++)) || true
-if [[ -v "RECOND_CONFIG[api_keys.virustotal]" ]]; then
+if [[ -v "RECON_CONFIG[api_keys.virustotal]" ]]; then
     ((TESTS_PASSED++)) || true
     echo -e "${GREEN}✓${NC} Config default exists: api_keys.virustotal"
 else

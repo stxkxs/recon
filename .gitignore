@@ -8,10 +8,10 @@ results/
 state/
 
 # Config files with secrets
-recond.yaml
-recond.yml
-.recond.yaml
-.recond.yml
+recon.yaml
+recon.yml
+.recon.yaml
+.recon.yml
 
 # OS files
 .DS_Store

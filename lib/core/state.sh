@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# state.sh - State management for recond
+# state.sh - State management for recon
 #
 # Handles checkpoint/resume functionality for batch processing:
 # - Checkpoint files to track progress
@@ -9,11 +9,11 @@
 #
 
 # Prevent multiple sourcing
-[[ -n "${_RECOND_STATE_LOADED:-}" ]] && return 0
-_RECOND_STATE_LOADED=1
+[[ -n "${_RECON_STATE_LOADED:-}" ]] && return 0
+_RECON_STATE_LOADED=1
 
 # Default state directory
-STATE_DIR="${RECOND_STATE_DIR:-${HOME}/.local/share/recond/state}"
+STATE_DIR="${RECON_STATE_DIR:-${HOME}/.local/share/recon/state}"
 
 # Initialize state directory
 state_init() {

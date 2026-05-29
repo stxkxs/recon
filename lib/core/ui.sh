@@ -8,8 +8,8 @@
 #
 
 # Prevent multiple sourcing
-[[ -n "${_RECOND_UI_LOADED:-}" ]] && return 0
-_RECOND_UI_LOADED=1
+[[ -n "${_RECON_UI_LOADED:-}" ]] && return 0
+_RECON_UI_LOADED=1
 
 # Check if gum is available
 _HAS_GUM=false
@@ -19,13 +19,13 @@ fi
 
 # Check if gum should be used (not in JSON mode, gum available)
 _use_gum() {
-    $_HAS_GUM && [[ "$RECOND_OUTPUT_FORMAT" != "json" ]]
+    $_HAS_GUM && [[ "$RECON_OUTPUT_FORMAT" != "json" ]]
 }
 
 # ─── Styled Banner ───
 # Print the banner using gum style if available
 ui_banner() {
-    [[ "$RECOND_OUTPUT_FORMAT" == "json" ]] && return 0
+    [[ "$RECON_OUTPUT_FORMAT" == "json" ]] && return 0
 
     if _use_gum; then
         gum style \
@@ -39,7 +39,7 @@ ui_banner() {
         gum style \
             --foreground 8 \
             --margin "0 2" \
-            "infrastructure reconnaissance toolkit v${RECOND_VERSION}"
+            "infrastructure reconnaissance toolkit v${RECON_VERSION}"
     else
         print_banner
     fi
@@ -48,7 +48,7 @@ ui_banner() {
 # ─── Styled Headers ───
 ui_header() {
     local title=$1
-    [[ "$RECOND_OUTPUT_FORMAT" == "json" ]] && return 0
+    [[ "$RECON_OUTPUT_FORMAT" == "json" ]] && return 0
 
     if _use_gum; then
         echo ""
@@ -68,7 +68,7 @@ ui_header() {
 
 ui_subheader() {
     local title=$1
-    [[ "$RECOND_OUTPUT_FORMAT" == "json" ]] && return 0
+    [[ "$RECON_OUTPUT_FORMAT" == "json" ]] && return 0
 
     if _use_gum; then
         echo ""
@@ -107,7 +107,7 @@ ui_spin() {
 # Print data as a formatted table using gum
 # Usage: ui_table "PORT,SERVICE,STATE" "80,http,open" "443,https,open"
 ui_table() {
-    [[ "$RECOND_OUTPUT_FORMAT" == "json" ]] && return 0
+    [[ "$RECON_OUTPUT_FORMAT" == "json" ]] && return 0
 
     local header=$1
     shift
@@ -131,7 +131,7 @@ ui_table() {
 
 # ─── Log Messages ───
 ui_log_info() {
-    [[ "$RECOND_OUTPUT_FORMAT" == "json" ]] && return 0
+    [[ "$RECON_OUTPUT_FORMAT" == "json" ]] && return 0
     if _use_gum; then
         gum log --level info "$1"
     else
@@ -140,7 +140,7 @@ ui_log_info() {
 }
 
 ui_log_warn() {
-    [[ "$RECOND_OUTPUT_FORMAT" == "json" ]] && return 0
+    [[ "$RECON_OUTPUT_FORMAT" == "json" ]] && return 0
     if _use_gum; then
         gum log --level warn "$1"
     else
@@ -149,7 +149,7 @@ ui_log_warn() {
 }
 
 ui_log_error() {
-    [[ "$RECOND_OUTPUT_FORMAT" == "json" ]] && return 0
+    [[ "$RECON_OUTPUT_FORMAT" == "json" ]] && return 0
     if _use_gum; then
         gum log --level error "$1"
     else
@@ -158,8 +158,8 @@ ui_log_error() {
 }
 
 ui_log_debug() {
-    [[ "${RECOND_DEBUG:-}" != "1" ]] && return 0
-    [[ "$RECOND_OUTPUT_FORMAT" == "json" ]] && return 0
+    [[ "${RECON_DEBUG:-}" != "1" ]] && return 0
+    [[ "$RECON_OUTPUT_FORMAT" == "json" ]] && return 0
     if _use_gum; then
         gum log --level debug "$1"
     else
@@ -213,7 +213,7 @@ ui_module_run() {
     local func=$2
     local target=$3
 
-    if _use_gum && [[ "$RECOND_OUTPUT_FORMAT" != "json" ]]; then
+    if _use_gum && [[ "$RECON_OUTPUT_FORMAT" != "json" ]]; then
         local result
         result=$(gum spin --spinner dot --title "  $label..." -- bash -c "$func '$target'" 2>/dev/null)
         echo "$result"

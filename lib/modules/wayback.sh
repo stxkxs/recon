@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# wayback.sh - Wayback Machine URL discovery module for recond
+# wayback.sh - Wayback Machine URL discovery module for recon
 #
 # Queries the Wayback Machine CDX API to discover historical URLs
 # for a domain, groups them by path segment, and identifies
@@ -8,8 +8,8 @@
 #
 
 # Prevent multiple sourcing
-[[ -n "${_RECOND_MODULE_WAYBACK_LOADED:-}" ]] && return 0
-_RECOND_MODULE_WAYBACK_LOADED=1
+[[ -n "${_RECON_MODULE_WAYBACK_LOADED:-}" ]] && return 0
+_RECON_MODULE_WAYBACK_LOADED=1
 
 # Module info
 MODULE_WAYBACK_NAME="wayback"

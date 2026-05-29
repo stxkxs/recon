@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# waf.sh - WAF/CDN detection module for recond
+# waf.sh - WAF/CDN detection module for recon
 #
 # Passive fingerprinting via HTTP response headers to identify
 # Web Application Firewalls and CDN providers including:
@@ -9,8 +9,8 @@
 #
 
 # Prevent multiple sourcing
-[[ -n "${_RECOND_MODULE_WAF_LOADED:-}" ]] && return 0
-_RECOND_MODULE_WAF_LOADED=1
+[[ -n "${_RECON_MODULE_WAF_LOADED:-}" ]] && return 0
+_RECON_MODULE_WAF_LOADED=1
 
 # Module info
 MODULE_WAF_NAME="waf"

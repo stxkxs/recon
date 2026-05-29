@@ -1,22 +1,22 @@
 #!/usr/bin/env bash
 #
-# recond - Infrastructure reconnaissance tool
+# recon - Infrastructure reconnaissance tool
 #
 # Requires: bash 4.0+ (for associative arrays)
 #
 # A modular, config-driven reconnaissance toolkit for SRE and security teams.
 #
 # Usage:
-#   recond [options] <target>
-#   recond --batch <targets_file> [options]
+#   recon [options] <target>
+#   recon --batch <targets_file> [options]
 #
 # Examples:
-#   recond example.com                     # Full scan, terminal output
-#   recond --json example.com              # Full scan, JSON output
-#   recond --modules dns,ssl example.com   # Only DNS and SSL modules
-#   recond 192.168.1.1                     # IP reconnaissance
-#   recond --batch targets.txt --parallel 4  # Batch processing
-#   recond --report out.html example.com   # Generate HTML report
+#   recon example.com                     # Full scan, terminal output
+#   recon --json example.com              # Full scan, JSON output
+#   recon --modules dns,ssl example.com   # Only DNS and SSL modules
+#   recon 192.168.1.1                     # IP reconnaissance
+#   recon --batch targets.txt --parallel 4  # Batch processing
+#   recon --report out.html example.com   # Generate HTML report
 #
 
 set -euo pipefail
@@ -114,8 +114,8 @@ IP_MODULES=(ip ports shodan virustotal reverseip asn)
 # Print usage
 usage() {
     cat << 'EOF'
-Usage: recond [options] <target>
-       recond --batch <targets_file> [options]
+Usage: recon [options] <target>
+       recon --batch <targets_file> [options]
 
 Infrastructure reconnaissance tool for SRE and security teams.
 
@@ -147,21 +147,21 @@ Batch Processing:
   --list-batches        List recent batch runs
 
 Examples:
-  recond example.com                       # Full scan
-  recond --json example.com > result.json  # JSON output
-  recond -m dns,ssl example.com            # Only DNS and SSL
-  recond -s example.com                    # Full scan with security score
-  recond 8.8.8.8                           # IP reconnaissance
-  recond --batch targets.txt -p 8          # Batch with 8 workers
-  recond --report report.html example.com  # Generate HTML report
-  recond --resume                          # Resume last batch
+  recon example.com                       # Full scan
+  recon --json example.com > result.json  # JSON output
+  recon -m dns,ssl example.com            # Only DNS and SSL
+  recon -s example.com                    # Full scan with security score
+  recon 8.8.8.8                           # IP reconnaissance
+  recon --batch targets.txt -p 8          # Batch with 8 workers
+  recon --report report.html example.com  # Generate HTML report
+  recon --resume                          # Resume last batch
 EOF
     exit 0
 }
 
 # Print version
 version() {
-    echo "recond version ${RECOND_VERSION}"
+    echo "recon version ${RECON_VERSION}"
     exit 0
 }
 
@@ -292,7 +292,7 @@ run_recon() {
         json_result=$(echo "$json_result" | json_add_result "$module" "$module_status" "$module_result")
 
         # Terminal output (to stderr so it's not captured in subshell)
-        if [[ "$RECOND_OUTPUT_FORMAT" != "json" ]]; then
+        if [[ "$RECON_OUTPUT_FORMAT" != "json" ]]; then
             $print_func "$module_result" "$target" >&2 2>/dev/null || true
         fi
     done
@@ -302,16 +302,16 @@ run_recon() {
         local pre_emailsec_json
         pre_emailsec_json=$(echo "$json_result" | json_finalize)
         local emailsec_result
-        export RECOND_SCAN_JSON="$pre_emailsec_json"
+        export RECON_SCAN_JSON="$pre_emailsec_json"
         if emailsec_result=$(emailsec_run "$target" 2>&1); then
             if echo "$emailsec_result" | jq . >/dev/null 2>&1; then
                 json_result=$(echo "$json_result" | json_add_result "emailsec" "success" "$emailsec_result")
-                if [[ "$RECOND_OUTPUT_FORMAT" != "json" ]]; then
+                if [[ "$RECON_OUTPUT_FORMAT" != "json" ]]; then
                     emailsec_print "$emailsec_result" "$target" >&2 2>/dev/null || true
                 fi
             fi
         fi
-        unset RECOND_SCAN_JSON
+        unset RECON_SCAN_JSON
     fi
 
     # Run security scoring if requested
@@ -322,16 +322,16 @@ run_recon() {
 
         # Pass full scan results to score module
         local score_result
-        export RECOND_SCAN_JSON="$pre_score_json"
+        export RECON_SCAN_JSON="$pre_score_json"
         if score_result=$(score_run "$target" 2>&1); then
             if echo "$score_result" | jq . >/dev/null 2>&1; then
                 json_result=$(echo "$json_result" | json_add_result "score" "success" "$score_result")
-                if [[ "$RECOND_OUTPUT_FORMAT" != "json" ]]; then
+                if [[ "$RECON_OUTPUT_FORMAT" != "json" ]]; then
                     score_print "$score_result" "$target" >&2 2>/dev/null || true
                 fi
             fi
         fi
-        unset RECOND_SCAN_JSON
+        unset RECON_SCAN_JSON
     fi
 
     # Run takeover detection if requested
@@ -339,16 +339,16 @@ run_recon() {
         local pre_takeover_json
         pre_takeover_json=$(echo "$json_result" | json_finalize)
         local takeover_result
-        export RECOND_SCAN_JSON="$pre_takeover_json"
+        export RECON_SCAN_JSON="$pre_takeover_json"
         if takeover_result=$(takeover_run "$target" 2>&1); then
             if echo "$takeover_result" | jq . >/dev/null 2>&1; then
                 json_result=$(echo "$json_result" | json_add_result "takeover" "success" "$takeover_result")
-                if [[ "$RECOND_OUTPUT_FORMAT" != "json" ]]; then
+                if [[ "$RECON_OUTPUT_FORMAT" != "json" ]]; then
                     takeover_print "$takeover_result" "$target" >&2 2>/dev/null || true
                 fi
             fi
         fi
-        unset RECOND_SCAN_JSON
+        unset RECON_SCAN_JSON
     fi
 
     # Finalize JSON
@@ -450,7 +450,7 @@ main() {
     load_config "$config_file"
 
     # Apply output format
-    export RECOND_OUTPUT_FORMAT="$output_format"
+    export RECON_OUTPUT_FORMAT="$output_format"
 
     # Handle resume
     if [[ "$resume" == true ]]; then

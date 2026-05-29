@@ -1,4 +1,4 @@
-# Recond
+# Recon
 
 A fast, modular infrastructure reconnaissance toolkit for SRE and security teams.
 
@@ -15,7 +15,7 @@ A fast, modular infrastructure reconnaissance toolkit for SRE and security teams
 
 ## Overview
 
-Recond performs passive reconnaissance on domains and IP addresses, gathering DNS records, SSL certificates, HTTP headers, WHOIS data, technology fingerprints, port states, CORS configurations, WAF/CDN detection, certificate transparency logs, and more. It integrates with Shodan, VirusTotal, and SecurityTrails for enriched intelligence, produces a security posture score, and can generate self-contained HTML reports. Designed for:
+Recon performs passive reconnaissance on domains and IP addresses, gathering DNS records, SSL certificates, HTTP headers, WHOIS data, technology fingerprints, port states, CORS configurations, WAF/CDN detection, certificate transparency logs, and more. It integrates with Shodan, VirusTotal, and SecurityTrails for enriched intelligence, produces a security posture score, and can generate self-contained HTML reports. Designed for:
 
 - **Incident Response**: Quickly gather context on suspicious domains
 - **Infrastructure Audits**: Verify DNS, SSL, and security header configurations
@@ -48,41 +48,41 @@ Recond performs passive reconnaissance on domains and IP addresses, gathering DN
 
 ```bash
 # Clone the repo
-git clone https://github.com/nanohype/recond.git
-cd recond
+git clone https://github.com/stxkxs/recon.git
+cd recon
 
 # Run against a domain
-./bin/recond example.com
+./bin/recon example.com
 
 # JSON output for automation
-./bin/recond --json example.com | jq .
+./bin/recon --json example.com | jq .
 
 # Specific modules only
-./bin/recond -m dns,ssl example.com
+./bin/recon -m dns,ssl example.com
 
 # Security score
-./bin/recond -s example.com
+./bin/recon -s example.com
 
 # HTML report
-./bin/recond --report report.html example.com
+./bin/recon --report report.html example.com
 
 # Port scanning only
-./bin/recond -m ports example.com
+./bin/recon -m ports example.com
 
 # CORS analysis
-./bin/recond -m cors example.com
+./bin/recon -m cors example.com
 
 # WAF/CDN detection
-./bin/recond -m waf example.com
+./bin/recon -m waf example.com
 
 # Email security analysis
-./bin/recond -m emailsec -s example.com
+./bin/recon -m emailsec -s example.com
 
 # IP reconnaissance
-./bin/recond 8.8.8.8
+./bin/recon 8.8.8.8
 
 # Batch processing
-./bin/recond --batch targets.txt --parallel 4
+./bin/recon --batch targets.txt --parallel 4
 ```
 
 ## Installation
@@ -134,7 +134,7 @@ sudo make install
 make install-local
 
 # Verify installation
-recond --version
+recon --version
 ```
 
 ### Docker
@@ -144,19 +144,19 @@ recond --version
 make docker-build
 
 # Run
-docker run --rm -it recond:latest example.com
-docker run --rm -it recond:latest --json example.com
+docker run --rm -it recon:latest example.com
+docker run --rm -it recon:latest --json example.com
 
 # With docker-compose
 cd docker
-docker-compose run --rm recond example.com
+docker-compose run --rm recon example.com
 ```
 
 ## Usage
 
 ```
-Usage: recond [options] <target>
-       recond --batch <targets_file> [options]
+Usage: recon [options] <target>
+       recon --batch <targets_file> [options]
 
 Arguments:
   <target>              Domain or IP address to scan
@@ -192,7 +192,7 @@ Batch Processing:
 | `whois` | WHOIS lookups | Organization, netname, country, CIDR |
 | `files` | Common files | robots.txt, security.txt, sitemap.xml, well-known |
 | `tech` | Tech detection | Frontend frameworks, analytics, CDN/infrastructure |
-| `ip` | IP recond | Reverse DNS, ASN, geolocation hints |
+| `ip` | IP recon | Reverse DNS, ASN, geolocation hints |
 | `ports` | Port scanning | 20 common TCP ports with service identification |
 | `cors` | CORS analysis | Misconfiguration detection, origin reflection, risk level |
 | `waf` | WAF/CDN detection | Firewall and CDN identification via header fingerprinting |
@@ -222,7 +222,7 @@ Batch Processing:
 Run with `-s` to get a security posture score:
 
 ```bash
-recond -s example.com
+recon -s example.com
 ```
 
 The score evaluates:
@@ -242,7 +242,7 @@ Grades: **A** (90%+), **B** (80%+), **C** (70%+), **D** (60%+), **F** (<60%)
 Generate a self-contained HTML report:
 
 ```bash
-recond --report report.html example.com
+recon --report report.html example.com
 ```
 
 Reports include all scan data in a dark-themed, responsive layout with score visualization, color-coded findings, and structured tables.
@@ -253,75 +253,75 @@ Reports include all scan data in a dark-themed, responsive layout with score vis
 
 ```bash
 # Full scan with terminal output
-recond example.com
+recon example.com
 
 # Quick DNS check
-recond -m dns example.com
+recon -m dns example.com
 
 # SSL and HTTP security analysis
-recond -m ssl,http example.com
+recon -m ssl,http example.com
 
 # Save results to file
-recond --json example.com -o results.json
+recon --json example.com -o results.json
 
 # Quiet mode (no banner)
-recond -q example.com
+recon -q example.com
 ```
 
 ### Security Assessment
 
 ```bash
 # Full scan with security score
-recond -s example.com
+recon -s example.com
 
 # Generate HTML report with score
-recond --report audit.html -s example.com
+recon --report audit.html -s example.com
 
 # Check CORS configuration
-recond -m cors example.com
+recon -m cors example.com
 
 # Port scan only
-recond -m ports example.com
+recon -m ports example.com
 
 # Combined security check
-recond -m http,ssl,cors,ports -s example.com
+recon -m http,ssl,cors,ports -s example.com
 
 # Subdomain takeover check
-recond -m subdomain,crt,takeover example.com
+recon -m subdomain,crt,takeover example.com
 
 # JavaScript secrets scan
-recond -m jsanalysis example.com
+recon -m jsanalysis example.com
 
 # Full email security audit
-recond -m dns,emailsec -s example.com
+recon -m dns,emailsec -s example.com
 ```
 
 ### Working with JSON Output
 
 ```bash
 # Pretty print full results
-recond --json example.com | jq .
+recon --json example.com | jq .
 
 # Extract A records
-recond --json example.com | jq '.results.dns.data.a'
+recon --json example.com | jq '.results.dns.data.a'
 
 # Get all discovered subdomains
-recond --json example.com | jq '.results.subdomain.data.found[].fqdn'
+recon --json example.com | jq '.results.subdomain.data.found[].fqdn'
 
 # Check security headers
-recond --json example.com | jq '.results.http.data.urls[0].security_headers'
+recon --json example.com | jq '.results.http.data.urls[0].security_headers'
 
 # Get security score
-recond --json -s example.com | jq '.results.score.data | {grade, percentage, recommendations}'
+recon --json -s example.com | jq '.results.score.data | {grade, percentage, recommendations}'
 
 # Get open ports
-recond --json example.com | jq '.results.ports.data.open[] | {port, service}'
+recon --json example.com | jq '.results.ports.data.open[] | {port, service}'
 
 # Check CORS risk level
-recond --json example.com | jq '.results.cors.data | {risk, findings}'
+recon --json example.com | jq '.results.cors.data | {risk, findings}'
 
 # Build a summary report
-recond --json -s example.com | jq '{
+recon --json -s example.com | jq '{
   domain: .target,
   grade: .results.score.data.grade,
   ips: .results.dns.data.a,
@@ -345,39 +345,39 @@ cloudflare.com
 EOF
 
 # Process with 8 parallel workers
-recond --batch targets.txt --parallel 8
+recon --batch targets.txt --parallel 8
 
 # Resume interrupted batch
-recond --resume
+recon --resume
 
 # View batch history
-recond --list-batches
+recon --list-batches
 
-# Results saved to ~/.local/share/recond/results/
+# Results saved to ~/.local/share/recon/results/
 ```
 
 ### Input Normalization
 
-Recond automatically normalizes inputs:
+Recon automatically normalizes inputs:
 
 ```bash
 # All of these are equivalent:
-recond example.com
-recond EXAMPLE.COM
-recond https://example.com
-recond https://example.com/path/to/page
-recond "  example.com  "
+recon example.com
+recon EXAMPLE.COM
+recon https://example.com
+recon https://example.com/path/to/page
+recon "  example.com  "
 ```
 
 ## Configuration
 
 ### Config File
 
-Create `~/.config/recond/recond.yaml` or `./recond.yaml`:
+Create `~/.config/recon/recon.yaml` or `./recon.yaml`:
 
 ```yaml
 global:
-  output_dir: "~/.local/share/recond/results"
+  output_dir: "~/.local/share/recon/results"
   output_format: "terminal"  # terminal | json
   color: "auto"              # auto | always | never
   retention_days: 30
@@ -467,21 +467,21 @@ api_keys:
   virustotal: ""
 ```
 
-See [`etc/recond.yaml.example`](etc/recond.yaml.example) for the full template.
+See [`etc/recon.yaml.example`](etc/recon.yaml.example) for the full template.
 
 ### Environment Variables
 
 Environment variables override config file values:
 
 ```bash
-export RECOND_OUTPUT_FORMAT=json
-export RECOND_COLOR=never
-export RECOND_TIMEOUT_DNS=10
-export RECOND_TIMEOUT_HTTP=20
-export RECOND_PARALLEL=8
-export RECOND_API_SHODAN=your_api_key
-export RECOND_API_VIRUSTOTAL=your_api_key
-export RECOND_API_SECURITYTRAILS=your_api_key
+export RECON_OUTPUT_FORMAT=json
+export RECON_COLOR=never
+export RECON_TIMEOUT_DNS=10
+export RECON_TIMEOUT_HTTP=20
+export RECON_PARALLEL=8
+export RECON_API_SHODAN=your_api_key
+export RECON_API_VIRUSTOTAL=your_api_key
+export RECON_API_SECURITYTRAILS=your_api_key
 ```
 
 ## JSON Schema
@@ -578,9 +578,9 @@ export RECOND_API_SECURITYTRAILS=your_api_key
 ## Project Structure
 
 ```
-recond/
+recon/
 ├── bin/
-│   └── recond              # Main entry point
+│   └── recon              # Main entry point
 ├── lib/
 │   ├── core/
 │   │   ├── common.sh      # Colors, logging, utilities
@@ -599,7 +599,7 @@ recond/
 │   │   ├── whois.sh       # WHOIS lookups
 │   │   ├── files.sh       # Common files check
 │   │   ├── tech.sh        # Technology detection
-│   │   ├── ip.sh          # IP-specific recond
+│   │   ├── ip.sh          # IP-specific recon
 │   │   ├── ports.sh       # TCP port scanning
 │   │   ├── cors.sh        # CORS misconfiguration detection
 │   │   ├── waf.sh         # WAF/CDN detection
@@ -622,7 +622,7 @@ recond/
 │       ├── runner.sh      # Batch orchestration
 │       └── progress.sh    # Progress tracking
 ├── etc/
-│   ├── recond.yaml.example # Config template
+│   ├── recon.yaml.example # Config template
 │   └── subdomains.txt     # Default wordlist (82 entries)
 ├── docker/
 │   ├── Dockerfile
@@ -685,8 +685,8 @@ make demo-json     # JSON output
 ```bash
 #!/usr/bin/env bash
 
-[[ -n "${_RECOND_MODULE_MYMODULE_LOADED:-}" ]] && return 0
-_RECOND_MODULE_MYMODULE_LOADED=1
+[[ -n "${_RECON_MODULE_MYMODULE_LOADED:-}" ]] && return 0
+_RECON_MODULE_MYMODULE_LOADED=1
 
 # Run the module - returns JSON
 mymodule_run() {
@@ -709,14 +709,14 @@ mymodule_check() {
 }
 ```
 
-2. Register in `bin/recond`:
+2. Register in `bin/recon`:
 
 ```bash
 MODULES[mymodule]="mymodule_run:mymodule_print:mymodule_check"
 DOMAIN_MODULES+=(mymodule)
 ```
 
-3. Source in `bin/recond`:
+3. Source in `bin/recon`:
 
 ```bash
 source "${PROJECT_ROOT}/lib/modules/mymodule.sh"
@@ -724,7 +724,7 @@ source "${PROJECT_ROOT}/lib/modules/mymodule.sh"
 
 ## Security Considerations
 
-- **Passive Only**: Recond performs passive/semi-passive reconnaissance only
+- **Passive Only**: Recon performs passive/semi-passive reconnaissance only
 - **No Authentication**: Does not attempt to authenticate or log in
 - **Rate Limiting**: Configurable delays for WHOIS and other rate-limited services
 - **Respect robots.txt**: Only checks for existence, does not crawl disallowed paths

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# files.sh - Common files check module for recond
+# files.sh - Common files check module for recon
 #
 # Checks for common files and endpoints:
 # - /.well-known/security.txt
@@ -11,8 +11,8 @@
 #
 
 # Prevent multiple sourcing
-[[ -n "${_RECOND_MODULE_FILES_LOADED:-}" ]] && return 0
-_RECOND_MODULE_FILES_LOADED=1
+[[ -n "${_RECON_MODULE_FILES_LOADED:-}" ]] && return 0
+_RECON_MODULE_FILES_LOADED=1
 
 # Module info
 MODULE_FILES_NAME="files"

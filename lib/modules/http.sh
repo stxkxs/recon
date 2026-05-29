@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# http.sh - HTTP header analysis module for recond
+# http.sh - HTTP header analysis module for recon
 #
 # Analyzes HTTP response headers including:
 # - Server identification
@@ -9,8 +9,8 @@
 #
 
 # Prevent multiple sourcing
-[[ -n "${_RECOND_MODULE_HTTP_LOADED:-}" ]] && return 0
-_RECOND_MODULE_HTTP_LOADED=1
+[[ -n "${_RECON_MODULE_HTTP_LOADED:-}" ]] && return 0
+_RECON_MODULE_HTTP_LOADED=1
 
 # Module info
 MODULE_HTTP_NAME="http"

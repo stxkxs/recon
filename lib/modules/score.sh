@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# score.sh - Security posture scoring module for recond
+# score.sh - Security posture scoring module for recon
 #
 # Analyzes scan results and produces a security score:
 # - Grade A-F based on weighted checks
@@ -11,8 +11,8 @@
 #
 
 # Prevent multiple sourcing
-[[ -n "${_RECOND_MODULE_SCORE_LOADED:-}" ]] && return 0
-_RECOND_MODULE_SCORE_LOADED=1
+[[ -n "${_RECON_MODULE_SCORE_LOADED:-}" ]] && return 0
+_RECON_MODULE_SCORE_LOADED=1
 
 # Module info
 MODULE_SCORE_NAME="score"
@@ -251,17 +251,17 @@ score_calculate() {
 }
 
 # Run scoring (requires full scan JSON as input via env)
-# Usage: RECOND_SCAN_JSON="$json" score_run "example.com"
+# Usage: RECON_SCAN_JSON="$json" score_run "example.com"
 score_run() {
     local target=$1
 
-    if [[ -z "${RECOND_SCAN_JSON:-}" ]]; then
+    if [[ -z "${RECON_SCAN_JSON:-}" ]]; then
         # Return empty score if no scan data available
         jq -n '{score: 0, max_score: 0, percentage: 0, grade: "N/A", checks: [], passed: 0, failed: 0, recommendations: ["Run a full scan first to generate a security score"]}'
         return 0
     fi
 
-    score_calculate "$RECOND_SCAN_JSON"
+    score_calculate "$RECON_SCAN_JSON"
 }
 
 # Terminal output for score results

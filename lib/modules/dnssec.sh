@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 #
-# dnssec.sh - DNSSEC validation module for recond
+# dnssec.sh - DNSSEC validation module for recon
 #
 # Validates DNSSEC deployment including:
 # DNSKEY, DS, RRSIG records, NSEC/NSEC3, and AD flag
 #
 
 # Prevent multiple sourcing
-[[ -n "${_RECOND_MODULE_DNSSEC_LOADED:-}" ]] && return 0
-_RECOND_MODULE_DNSSEC_LOADED=1
+[[ -n "${_RECON_MODULE_DNSSEC_LOADED:-}" ]] && return 0
+_RECON_MODULE_DNSSEC_LOADED=1
 
 # Module info
 MODULE_DNSSEC_NAME="dnssec"

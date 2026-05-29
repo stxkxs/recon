@@ -1,8 +1,8 @@
-# Dockerfile for recond - Infrastructure reconnaissance toolkit
+# Dockerfile for recon - Infrastructure reconnaissance toolkit
 #
-# Build: docker build -t recond:latest -f docker/Dockerfile .
-# Run:   docker run --rm -it recond:latest example.com
-#        docker run --rm -it recond:latest --json example.com
+# Build: docker build -t recon:latest -f docker/Dockerfile .
+# Run:   docker run --rm -it recon:latest example.com
+#        docker run --rm -it recon:latest --json example.com
 #
 
 FROM alpine:3.19
@@ -28,47 +28,47 @@ RUN apk add --no-cache \
     && rm -rf /var/cache/apk/*
 
 # Create non-root user
-RUN adduser -D -s /bin/bash recond
+RUN adduser -D -s /bin/bash recon
 
 # Create directories
-RUN mkdir -p /opt/recond/bin \
-             /opt/recond/lib/core \
-             /opt/recond/lib/modules \
-             /opt/recond/lib/batch \
-             /opt/recond/etc \
-             /home/recond/.local/share/recond/results \
-             /home/recond/.local/share/recond/state \
-    && chown -R recond:recond /opt/recond /home/recond
+RUN mkdir -p /opt/recon/bin \
+             /opt/recon/lib/core \
+             /opt/recon/lib/modules \
+             /opt/recon/lib/batch \
+             /opt/recon/etc \
+             /home/recon/.local/share/recon/results \
+             /home/recon/.local/share/recon/state \
+    && chown -R recon:recon /opt/recon /home/recon
 
 # Copy project files
-COPY --chown=recond:recond bin/recond /opt/recond/bin/
-COPY --chown=recond:recond lib/core/*.sh /opt/recond/lib/core/
-COPY --chown=recond:recond lib/modules/*.sh /opt/recond/lib/modules/
-COPY --chown=recond:recond lib/batch/*.sh /opt/recond/lib/batch/
-COPY --chown=recond:recond etc/*.txt etc/*.yaml.example /opt/recond/etc/
+COPY --chown=recon:recon bin/recon /opt/recon/bin/
+COPY --chown=recon:recon lib/core/*.sh /opt/recon/lib/core/
+COPY --chown=recon:recon lib/modules/*.sh /opt/recon/lib/modules/
+COPY --chown=recon:recon lib/batch/*.sh /opt/recon/lib/batch/
+COPY --chown=recon:recon etc/*.txt etc/*.yaml.example /opt/recon/etc/
 
 # Make executable
-RUN chmod +x /opt/recond/bin/recond
+RUN chmod +x /opt/recon/bin/recon
 
 # Update paths in main script for container environment
-RUN sed -i 's|PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"|PROJECT_ROOT="/opt/recond"|' /opt/recond/bin/recond
+RUN sed -i 's|PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"|PROJECT_ROOT="/opt/recon"|' /opt/recon/bin/recon
 
 # Add to PATH
-ENV PATH="/opt/recond/bin:${PATH}"
+ENV PATH="/opt/recon/bin:${PATH}"
 
 # Set working directory
-WORKDIR /home/recond
+WORKDIR /home/recon
 
 # Switch to non-root user
-USER recond
+USER recon
 
 # Default output directory
-ENV RECOND_OUTPUT_DIR="/home/recond/.local/share/recond/results"
+ENV RECON_OUTPUT_DIR="/home/recon/.local/share/recon/results"
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD recond --version || exit 1
+    CMD recon --version || exit 1
 
 # Default command shows help
-ENTRYPOINT ["recond"]
+ENTRYPOINT ["recon"]
 CMD ["--help"]

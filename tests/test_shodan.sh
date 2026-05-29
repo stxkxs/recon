@@ -10,7 +10,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
 # Force colors for test output
-export RECOND_COLOR=always
+export RECON_COLOR=always
 
 # Source required libraries
 source "${PROJECT_ROOT}/lib/core/common.sh"
@@ -166,8 +166,8 @@ echo ""
 echo "--- no API key behavior ---"
 
 # Ensure no API key is set for these tests
-unset RECOND_API_SHODAN 2>/dev/null || true
-RECOND_CONFIG[api_keys.shodan]=""
+unset RECON_API_SHODAN 2>/dev/null || true
+RECON_CONFIG[api_keys.shodan]=""
 
 result=$(shodan_run "93.184.216.34" 2>/dev/null)
 
@@ -243,7 +243,7 @@ echo ""
 echo "--- source guard ---"
 
 ((TESTS_RUN++)) || true
-if [[ "$_RECOND_MODULE_SHODAN_LOADED" == "1" ]]; then
+if [[ "$_RECON_MODULE_SHODAN_LOADED" == "1" ]]; then
     ((TESTS_PASSED++)) || true
     echo -e "${GREEN}✓${NC} Source guard variable is set"
 else

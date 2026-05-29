@@ -10,7 +10,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
 # Force colors for test output
-export RECOND_COLOR=always
+export RECON_COLOR=always
 
 # Source required libraries
 source "${PROJECT_ROOT}/lib/core/common.sh"
@@ -178,7 +178,7 @@ echo ""
 echo "--- emailsec_run without scan data ---"
 
 # Ensure no scan data is set
-unset RECOND_SCAN_JSON 2>/dev/null || true
+unset RECON_SCAN_JSON 2>/dev/null || true
 
 result=$(emailsec_run "example.com" 2>/dev/null)
 
@@ -433,8 +433,8 @@ echo ""
 
 echo "--- emailsec_run with mock scan data ---"
 
-export RECOND_SCAN_JSON
-RECOND_SCAN_JSON=$(jq -n '{
+export RECON_SCAN_JSON
+RECON_SCAN_JSON=$(jq -n '{
     results: {
         dns: {
             data: {
@@ -467,7 +467,7 @@ assert_json_value "$result" "spf.found" "true" "SPF found from scan data"
 # Verify DMARC was found from scan data
 assert_json_value "$result" "dmarc.found" "true" "DMARC found from scan data"
 
-unset RECOND_SCAN_JSON
+unset RECON_SCAN_JSON
 
 echo ""
 
@@ -476,7 +476,7 @@ echo ""
 echo "--- source guard ---"
 
 ((TESTS_RUN++)) || true
-if [[ "$_RECOND_MODULE_EMAILSEC_LOADED" == "1" ]]; then
+if [[ "$_RECON_MODULE_EMAILSEC_LOADED" == "1" ]]; then
     ((TESTS_PASSED++)) || true
     echo -e "${GREEN}✓${NC} Source guard variable is set"
 else

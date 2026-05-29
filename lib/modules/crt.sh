@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 #
-# crt.sh - Certificate Transparency log search module for recond
+# crt.sh - Certificate Transparency log search module for recon
 #
 # Queries crt.sh to discover subdomains from CT log entries.
 #
 
 # Prevent multiple sourcing
-[[ -n "${_RECOND_MODULE_CRT_LOADED:-}" ]] && return 0
-_RECOND_MODULE_CRT_LOADED=1
+[[ -n "${_RECON_MODULE_CRT_LOADED:-}" ]] && return 0
+_RECON_MODULE_CRT_LOADED=1
 
 # Module info
 MODULE_CRT_NAME="crt"

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# ports.sh - TCP port scanning module for recond
+# ports.sh - TCP port scanning module for recon
 #
 # Checks common service ports using /dev/tcp or nc:
 # - Web servers (80, 443, 8080, 8443)
@@ -11,8 +11,8 @@
 #
 
 # Prevent multiple sourcing
-[[ -n "${_RECOND_MODULE_PORTS_LOADED:-}" ]] && return 0
-_RECOND_MODULE_PORTS_LOADED=1
+[[ -n "${_RECON_MODULE_PORTS_LOADED:-}" ]] && return 0
+_RECON_MODULE_PORTS_LOADED=1
 
 # Module info
 MODULE_PORTS_NAME="ports"

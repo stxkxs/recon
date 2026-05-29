@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 #
-# dns.sh - DNS enumeration module for recond
+# dns.sh - DNS enumeration module for recon
 #
 # Performs DNS lookups for various record types including:
 # A, AAAA, MX, TXT, NS, CAA, DMARC, DKIM
 #
 
 # Prevent multiple sourcing
-[[ -n "${_RECOND_MODULE_DNS_LOADED:-}" ]] && return 0
-_RECOND_MODULE_DNS_LOADED=1
+[[ -n "${_RECON_MODULE_DNS_LOADED:-}" ]] && return 0
+_RECON_MODULE_DNS_LOADED=1
 
 # Module info
 MODULE_DNS_NAME="dns"

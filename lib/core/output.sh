@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 #
-# output.sh - JSON and terminal output formatting for recond
+# output.sh - JSON and terminal output formatting for recon
 #
 # Provides functions to build and output JSON results, and format
 # terminal output consistently across modules.
 #
 
 # Prevent multiple sourcing
-[[ -n "${_RECOND_OUTPUT_LOADED:-}" ]] && return 0
-_RECOND_OUTPUT_LOADED=1
+[[ -n "${_RECON_OUTPUT_LOADED:-}" ]] && return 0
+_RECON_OUTPUT_LOADED=1
 
 # Ensure jq is available for JSON operations
 _check_jq() {
@@ -30,7 +30,7 @@ json_init() {
     _check_jq || return 1
 
     jq -n \
-        --arg version "$RECOND_VERSION" \
+        --arg version "$RECON_VERSION" \
         --arg run_id "$run_id" \
         --arg started_at "$(date -u '+%Y-%m-%dT%H:%M:%SZ')" \
         --arg target_original "$target_original" \
@@ -225,14 +225,14 @@ indent() {
 _PROGRESS_ACTIVE=0
 
 progress_start() {
-    [[ "$RECOND_OUTPUT_FORMAT" == "json" ]] && return 0
+    [[ "$RECON_OUTPUT_FORMAT" == "json" ]] && return 0
     local message=$1
     echo -ne "${CYAN}${message}...${NC} "
     _PROGRESS_ACTIVE=1
 }
 
 progress_update() {
-    [[ "$RECOND_OUTPUT_FORMAT" == "json" ]] && return 0
+    [[ "$RECON_OUTPUT_FORMAT" == "json" ]] && return 0
     [[ $_PROGRESS_ACTIVE -eq 0 ]] && return 0
     local current=$1
     local total=$2
@@ -241,14 +241,14 @@ progress_update() {
 }
 
 progress_end() {
-    [[ "$RECOND_OUTPUT_FORMAT" == "json" ]] && return 0
+    [[ "$RECON_OUTPUT_FORMAT" == "json" ]] && return 0
     [[ $_PROGRESS_ACTIVE -eq 0 ]] && return 0
     echo -e "${GREEN}done${NC}"
     _PROGRESS_ACTIVE=0
 }
 
 progress_fail() {
-    [[ "$RECOND_OUTPUT_FORMAT" == "json" ]] && return 0
+    [[ "$RECON_OUTPUT_FORMAT" == "json" ]] && return 0
     [[ $_PROGRESS_ACTIVE -eq 0 ]] && return 0
     echo -e "${RED}failed${NC}"
     _PROGRESS_ACTIVE=0

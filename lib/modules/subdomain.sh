@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 #
-# subdomain.sh - Subdomain discovery module for recond
+# subdomain.sh - Subdomain discovery module for recon
 #
 # Checks common subdomains against a target domain
 # Supports custom wordlists and parallel checking
 #
 
 # Prevent multiple sourcing
-[[ -n "${_RECOND_MODULE_SUBDOMAIN_LOADED:-}" ]] && return 0
-_RECOND_MODULE_SUBDOMAIN_LOADED=1
+[[ -n "${_RECON_MODULE_SUBDOMAIN_LOADED:-}" ]] && return 0
+_RECON_MODULE_SUBDOMAIN_LOADED=1
 
 # Module info
 MODULE_SUBDOMAIN_NAME="subdomain"

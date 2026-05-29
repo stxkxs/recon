@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# ip.sh - IP-specific reconnaissance module for recond
+# ip.sh - IP-specific reconnaissance module for recon
 #
 # Performs reconnaissance on IP addresses:
 # - Reverse DNS lookup
@@ -10,8 +10,8 @@
 #
 
 # Prevent multiple sourcing
-[[ -n "${_RECOND_MODULE_IP_LOADED:-}" ]] && return 0
-_RECOND_MODULE_IP_LOADED=1
+[[ -n "${_RECON_MODULE_IP_LOADED:-}" ]] && return 0
+_RECON_MODULE_IP_LOADED=1
 
 # Module info
 MODULE_IP_NAME="ip"
@@ -111,7 +111,7 @@ ip_asn_lookup() {
 
 # Run full IP reconnaissance
 # Usage: ip_run "192.0.2.1"
-# Output: JSON object with all IP recond results
+# Output: JSON object with all IP recon results
 ip_run() {
     local ip=$1
     local timeout

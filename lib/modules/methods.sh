@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 #
-# methods.sh - HTTP methods enumeration module for recond
+# methods.sh - HTTP methods enumeration module for recon
 #
 # Probes target paths for allowed HTTP methods including dangerous ones
 # (TRACE, PUT, DELETE, PATCH) and checks for XST vulnerability via TRACE.
 #
 
 # Prevent multiple sourcing
-[[ -n "${_RECOND_MODULE_METHODS_LOADED:-}" ]] && return 0
-_RECOND_MODULE_METHODS_LOADED=1
+[[ -n "${_RECON_MODULE_METHODS_LOADED:-}" ]] && return 0
+_RECON_MODULE_METHODS_LOADED=1
 
 # Module info
 MODULE_METHODS_NAME="methods"

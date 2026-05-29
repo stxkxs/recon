@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 #
-# virustotal.sh - VirusTotal reputation analysis module for recond
+# virustotal.sh - VirusTotal reputation analysis module for recon
 #
 # Queries the VirusTotal API v3 for domain/IP reputation data including
 # detection stats, categories, and analysis dates.
 #
 
 # Prevent multiple sourcing
-[[ -n "${_RECOND_MODULE_VIRUSTOTAL_LOADED:-}" ]] && return 0
-_RECOND_MODULE_VIRUSTOTAL_LOADED=1
+[[ -n "${_RECON_MODULE_VIRUSTOTAL_LOADED:-}" ]] && return 0
+_RECON_MODULE_VIRUSTOTAL_LOADED=1
 
 # Module info
 MODULE_VIRUSTOTAL_NAME="virustotal"
@@ -40,7 +40,7 @@ virustotal_run() {
     api_key=$(get_api_key "virustotal" 2>/dev/null || echo "")
 
     if [[ -z "$api_key" ]]; then
-        warn "VirusTotal: No API key configured (set RECOND_API_VIRUSTOTAL or add to config)"
+        warn "VirusTotal: No API key configured (set RECON_API_VIRUSTOTAL or add to config)"
         jq -n \
             --arg target "$target" \
             --arg target_type "$target_type" \
@@ -168,7 +168,7 @@ virustotal_print() {
         case "$vt_error" in
             no_api_key)
                 warn "No VirusTotal API key configured"
-                info "Set RECOND_API_VIRUSTOTAL environment variable or add to config"
+                info "Set RECON_API_VIRUSTOTAL environment variable or add to config"
                 ;;
             request_failed)
                 warn "VirusTotal API request failed"

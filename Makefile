@@ -1,4 +1,4 @@
-# Makefile for recond - Infrastructure reconnaissance toolkit
+# Makefile for recon - Infrastructure reconnaissance toolkit
 
 SHELL := /bin/bash
 .DEFAULT_GOAL := help
@@ -6,13 +6,13 @@ SHELL := /bin/bash
 # Project paths
 PREFIX ?= /usr/local
 BINDIR := $(PREFIX)/bin
-LIBDIR := $(PREFIX)/lib/recond
-ETCDIR := $(PREFIX)/etc/recond
+LIBDIR := $(PREFIX)/lib/recon
+ETCDIR := $(PREFIX)/etc/recon
 
 # Project files
-BIN := bin/recond
+BIN := bin/recon
 LIBS := $(wildcard lib/core/*.sh) $(wildcard lib/modules/*.sh) $(wildcard lib/batch/*.sh)
-ETC := etc/recond.yaml.example etc/subdomains.txt
+ETC := etc/recon.yaml.example etc/subdomains.txt
 
 # Colors
 BLUE := \033[0;34m
@@ -22,7 +22,7 @@ NC := \033[0m
 
 .PHONY: help
 help: ## Show this help message
-	@echo -e "$(BLUE)recond$(NC) - Infrastructure Reconnaissance Toolkit"
+	@echo -e "$(BLUE)recon$(NC) - Infrastructure Reconnaissance Toolkit"
 	@echo ""
 	@echo "Usage: make [target]"
 	@echo ""
@@ -31,35 +31,35 @@ help: ## Show this help message
 		awk 'BEGIN {FS = ":.*?## "}; {printf "  $(GREEN)%-15s$(NC) %s\n", $$1, $$2}'
 
 .PHONY: install
-install: ## Install recond to system (PREFIX=/usr/local)
-	@echo -e "$(BLUE)Installing recond...$(NC)"
+install: ## Install recon to system (PREFIX=/usr/local)
+	@echo -e "$(BLUE)Installing recon...$(NC)"
 	@mkdir -p $(BINDIR)
 	@mkdir -p $(LIBDIR)/core
 	@mkdir -p $(LIBDIR)/modules
 	@mkdir -p $(LIBDIR)/batch
 	@mkdir -p $(ETCDIR)
 	@# Install main binary
-	@install -m 755 bin/recond $(BINDIR)/recond
+	@install -m 755 bin/recon $(BINDIR)/recon
 	@# Update library path in binary
-	@sed -i.bak 's|PROJECT_ROOT="$$(cd "$${SCRIPT_DIR}/.." && pwd)"|PROJECT_ROOT="$(PREFIX)/lib/recond"|' $(BINDIR)/recond
-	@sed -i.bak 's|$${PROJECT_ROOT}/lib|$(LIBDIR)|g' $(BINDIR)/recond
-	@rm -f $(BINDIR)/recond.bak
+	@sed -i.bak 's|PROJECT_ROOT="$$(cd "$${SCRIPT_DIR}/.." && pwd)"|PROJECT_ROOT="$(PREFIX)/lib/recon"|' $(BINDIR)/recon
+	@sed -i.bak 's|$${PROJECT_ROOT}/lib|$(LIBDIR)|g' $(BINDIR)/recon
+	@rm -f $(BINDIR)/recon.bak
 	@# Install libraries
 	@install -m 644 lib/core/*.sh $(LIBDIR)/core/
 	@install -m 644 lib/modules/*.sh $(LIBDIR)/modules/
 	@install -m 644 lib/batch/*.sh $(LIBDIR)/batch/
 	@# Install config files
-	@install -m 644 etc/recond.yaml.example $(ETCDIR)/
+	@install -m 644 etc/recon.yaml.example $(ETCDIR)/
 	@install -m 644 etc/subdomains.txt $(ETCDIR)/
 	@echo -e "$(GREEN)Installation complete!$(NC)"
-	@echo "  Binary: $(BINDIR)/recond"
+	@echo "  Binary: $(BINDIR)/recon"
 	@echo "  Libraries: $(LIBDIR)/"
 	@echo "  Config: $(ETCDIR)/"
 
 .PHONY: uninstall
-uninstall: ## Remove recond from system
-	@echo -e "$(BLUE)Uninstalling recond...$(NC)"
-	@rm -f $(BINDIR)/recond
+uninstall: ## Remove recon from system
+	@echo -e "$(BLUE)Uninstalling recon...$(NC)"
+	@rm -f $(BINDIR)/recon
 	@rm -rf $(LIBDIR)
 	@rm -rf $(ETCDIR)
 	@echo -e "$(GREEN)Uninstallation complete!$(NC)"
@@ -97,7 +97,7 @@ test-quick: ## Run quick unit tests only
 lint: ## Run shellcheck on all scripts
 	@echo -e "$(BLUE)Running shellcheck...$(NC)"
 	@if command -v shellcheck &>/dev/null; then \
-		shellcheck -x bin/recond $(LIBS) 2>&1 || true; \
+		shellcheck -x bin/recon $(LIBS) 2>&1 || true; \
 		echo -e "$(GREEN)Lint complete$(NC)"; \
 	else \
 		echo -e "$(YELLOW)shellcheck not installed, skipping$(NC)"; \
@@ -131,12 +131,12 @@ check-deps: ## Check for required dependencies
 .PHONY: docker-build
 docker-build: ## Build Docker image
 	@echo -e "$(BLUE)Building Docker image...$(NC)"
-	@docker build -t recond:latest -f docker/Dockerfile .
-	@echo -e "$(GREEN)Docker image built: recond:latest$(NC)"
+	@docker build -t recon:latest -f docker/Dockerfile .
+	@echo -e "$(GREEN)Docker image built: recon:latest$(NC)"
 
 .PHONY: docker-run
-docker-run: ## Run recond in Docker (usage: make docker-run ARGS="example.com")
-	@docker run --rm -it recond:latest $(ARGS)
+docker-run: ## Run recon in Docker (usage: make docker-run ARGS="example.com")
+	@docker run --rm -it recon:latest $(ARGS)
 
 .PHONY: clean
 clean: ## Clean temporary files
@@ -148,16 +148,16 @@ clean: ## Clean temporary files
 .PHONY: demo
 demo: ## Run a demo scan against example.com
 	@echo -e "$(BLUE)Running demo scan...$(NC)"
-	@./bin/recond --modules dns,http example.com
+	@./bin/recon --modules dns,http example.com
 
 .PHONY: demo-json
 demo-json: ## Run a demo scan with JSON output
 	@echo -e "$(BLUE)Running demo scan (JSON)...$(NC)"
-	@./bin/recond --json --modules dns example.com | jq .
+	@./bin/recon --json --modules dns example.com | jq .
 
 .PHONY: version
 version: ## Show version
-	@./bin/recond --version
+	@./bin/recon --version
 
 .PHONY: release
 release: lint test ## Prepare for release (lint + test)

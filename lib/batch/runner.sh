@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# runner.sh - Batch processing orchestration for recond
+# runner.sh - Batch processing orchestration for recon
 #
 # Handles running reconnaissance against multiple targets:
 # - Parallel execution with xargs
@@ -9,8 +9,8 @@
 #
 
 # Prevent multiple sourcing
-[[ -n "${_RECOND_BATCH_RUNNER_LOADED:-}" ]] && return 0
-_RECOND_BATCH_RUNNER_LOADED=1
+[[ -n "${_RECON_BATCH_RUNNER_LOADED:-}" ]] && return 0
+_RECON_BATCH_RUNNER_LOADED=1
 
 # Process a single target (called by xargs)
 # Usage: batch_process_target "target" "batch_id" "output_dir" "modules"
@@ -40,10 +40,10 @@ batch_process_target() {
     safe_target=$(echo "$normalized" | tr '/:' '_')
     local output_file="${output_dir}/${safe_target}.json"
 
-    # Run recond (this should call the main recond function)
-    # For now, we'll call the bin/recond script
+    # Run recon (this should call the main recon function)
+    # For now, we'll call the bin/recon script
     local result
-    if result=$("${script_dir}/bin/recond" --json ${modules:+--modules "$modules"} "$normalized" 2>&1); then
+    if result=$("${script_dir}/bin/recon" --json ${modules:+--modules "$modules"} "$normalized" 2>&1); then
         echo "$result" > "$output_file"
         state_mark_completed "$batch_id" "$target" 2>/dev/null || true
         echo "OK: $target"
@@ -170,8 +170,8 @@ normalized=$(echo "$target" | tr '[:upper:]' '[:lower:]' | sed 's|^https\?://||'
 safe_target=$(echo "$normalized" | tr '/:' '_')
 output_file="${output_dir}/${safe_target}.json"
 
-# Run recond
-if result=$("${script_dir}/bin/recond" --json ${modules:+--modules "$modules"} "$normalized" 2>&1); then
+# Run recon
+if result=$("${script_dir}/bin/recon" --json ${modules:+--modules "$modules"} "$normalized" 2>&1); then
     echo "$result" > "$output_file"
     echo "OK: $target"
 else

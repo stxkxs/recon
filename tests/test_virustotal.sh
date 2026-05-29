@@ -10,7 +10,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
 # Force colors for test output
-export RECOND_COLOR=always
+export RECON_COLOR=always
 
 # Source required libraries
 source "${PROJECT_ROOT}/lib/core/common.sh"
@@ -151,7 +151,7 @@ echo ""
 echo "--- virustotal without API key ---"
 
 # Ensure no API key is set
-unset RECOND_API_VIRUSTOTAL 2>/dev/null || true
+unset RECON_API_VIRUSTOTAL 2>/dev/null || true
 
 # Initialize config so get_api_key works
 load_config 2>/dev/null || true

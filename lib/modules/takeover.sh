@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 #
-# takeover.sh - Subdomain takeover detection module for recond
+# takeover.sh - Subdomain takeover detection module for recon
 #
 # Checks subdomains for dangling CNAMEs and known vulnerable service
 # fingerprints that could allow subdomain takeover attacks.
 #
 
 # Prevent multiple sourcing
-[[ -n "${_RECOND_MODULE_TAKEOVER_LOADED:-}" ]] && return 0
-_RECOND_MODULE_TAKEOVER_LOADED=1
+[[ -n "${_RECON_MODULE_TAKEOVER_LOADED:-}" ]] && return 0
+_RECON_MODULE_TAKEOVER_LOADED=1
 
 # Module info
 MODULE_TAKEOVER_NAME="takeover"
@@ -142,9 +142,9 @@ takeover_run() {
     # Collect subdomains with CNAMEs from scan data
     local subdomains_json='[]'
 
-    if [[ -n "${RECOND_SCAN_JSON:-}" ]]; then
+    if [[ -n "${RECON_SCAN_JSON:-}" ]]; then
         # Read subdomain results from scan data
-        subdomains_json=$(echo "$RECOND_SCAN_JSON" | jq -c '.results.subdomain.data.found // []' 2>/dev/null || echo '[]')
+        subdomains_json=$(echo "$RECON_SCAN_JSON" | jq -c '.results.subdomain.data.found // []' 2>/dev/null || echo '[]')
         total_subdomains=$(echo "$subdomains_json" | jq 'length' 2>/dev/null || echo "0")
     fi
 

@@ -1,9 +1,9 @@
-# Recond Configuration
-# Copy to ~/.config/recond/recond.yaml or ./recond.yaml
+# Recon Configuration
+# Copy to ~/.config/recon/recon.yaml or ./recon.yaml
 
 global:
   # Directory for storing results
-  output_dir: "~/.local/share/recond/results"
+  output_dir: "~/.local/share/recon/results"
 
   # Output format: terminal, json, or both
   output_format: "terminal"
@@ -234,7 +234,7 @@ modules:
 
 # API keys for enhanced features
 # Can also be set via environment variables:
-#   RECOND_API_SHODAN, RECOND_API_SECURITYTRAILS, RECOND_API_VIRUSTOTAL
+#   RECON_API_SHODAN, RECON_API_SECURITYTRAILS, RECON_API_VIRUSTOTAL
 api_keys:
   shodan: ""
   securitytrails: ""

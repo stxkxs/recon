@@ -10,7 +10,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
 # Force colors for test output
-export RECOND_COLOR=always
+export RECON_COLOR=always
 
 # Source the modules
 source "${PROJECT_ROOT}/lib/core/common.sh"

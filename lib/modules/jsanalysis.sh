@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# jsanalysis.sh - JavaScript file analysis module for recond
+# jsanalysis.sh - JavaScript file analysis module for recon
 #
 # Discovers and analyzes JavaScript files on a target for:
 # exposed API keys, hardcoded secrets, API endpoints,
@@ -8,8 +8,8 @@
 #
 
 # Prevent multiple sourcing
-[[ -n "${_RECOND_MODULE_JSANALYSIS_LOADED:-}" ]] && return 0
-_RECOND_MODULE_JSANALYSIS_LOADED=1
+[[ -n "${_RECON_MODULE_JSANALYSIS_LOADED:-}" ]] && return 0
+_RECON_MODULE_JSANALYSIS_LOADED=1
 
 # Module info
 MODULE_JSANALYSIS_NAME="jsanalysis"

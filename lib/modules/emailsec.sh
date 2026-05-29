@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# emailsec.sh - Email security analysis module for recond
+# emailsec.sh - Email security analysis module for recon
 #
 # Performs comprehensive email security analysis including:
 # SPF record parsing and validation, DMARC policy analysis,
@@ -10,8 +10,8 @@
 #
 
 # Prevent multiple sourcing
-[[ -n "${_RECOND_MODULE_EMAILSEC_LOADED:-}" ]] && return 0
-_RECOND_MODULE_EMAILSEC_LOADED=1
+[[ -n "${_RECON_MODULE_EMAILSEC_LOADED:-}" ]] && return 0
+_RECON_MODULE_EMAILSEC_LOADED=1
 
 # Module info
 MODULE_EMAILSEC_NAME="emailsec"
@@ -549,7 +549,7 @@ emailsec_grade() {
 # ─── Main Module Functions ───
 
 # Run email security analysis
-# Usage: RECOND_SCAN_JSON="$json" emailsec_run "example.com"
+# Usage: RECON_SCAN_JSON="$json" emailsec_run "example.com"
 # Output: JSON object with email security results
 emailsec_run() {
     local target=$1
@@ -559,19 +559,19 @@ emailsec_run() {
     # Try to extract existing data from scan results
     local scan_spf="" scan_dmarc="" scan_dkim="{}"
 
-    if [[ -n "${RECOND_SCAN_JSON:-}" ]]; then
+    if [[ -n "${RECON_SCAN_JSON:-}" ]]; then
         # Extract SPF from TXT records
-        scan_spf=$(echo "$RECOND_SCAN_JSON" | jq -r \
+        scan_spf=$(echo "$RECON_SCAN_JSON" | jq -r \
             '[.results.dns.data.txt[] // empty | select(test("v=spf1"))] | .[0] // empty' 2>/dev/null || true)
         # Remove surrounding quotes
         scan_spf="${scan_spf%\"}"
         scan_spf="${scan_spf#\"}"
 
         # Extract DMARC
-        scan_dmarc=$(echo "$RECOND_SCAN_JSON" | jq -r '.results.dns.data.dmarc // empty' 2>/dev/null || true)
+        scan_dmarc=$(echo "$RECON_SCAN_JSON" | jq -r '.results.dns.data.dmarc // empty' 2>/dev/null || true)
 
         # Extract DKIM
-        scan_dkim=$(echo "$RECOND_SCAN_JSON" | jq -c '.results.dns.data.dkim // {}' 2>/dev/null || echo '{}')
+        scan_dkim=$(echo "$RECON_SCAN_JSON" | jq -c '.results.dns.data.dkim // {}' 2>/dev/null || echo '{}')
     fi
 
     # Run analyses

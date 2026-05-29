@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 #
-# shodan.sh - Shodan host intelligence module for recond
+# shodan.sh - Shodan host intelligence module for recon
 #
 # Queries the Shodan API for host information including:
 # open ports, services, vulnerabilities, ISP, and organization data.
 #
 
 # Prevent multiple sourcing
-[[ -n "${_RECOND_MODULE_SHODAN_LOADED:-}" ]] && return 0
-_RECOND_MODULE_SHODAN_LOADED=1
+[[ -n "${_RECON_MODULE_SHODAN_LOADED:-}" ]] && return 0
+_RECON_MODULE_SHODAN_LOADED=1
 
 # Module info
 MODULE_SHODAN_NAME="shodan"
@@ -30,7 +30,7 @@ shodan_run() {
 
     # If no API key, return error JSON
     if [[ -z "$api_key" ]]; then
-        warn "Shodan: no API key configured (set RECOND_API_SHODAN or add to config)"
+        warn "Shodan: no API key configured (set RECON_API_SHODAN or add to config)"
         jq -n '{
             error: "no_api_key",
             ip: "",

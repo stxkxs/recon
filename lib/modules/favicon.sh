@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# favicon.sh - Favicon hash fingerprinting module for recond
+# favicon.sh - Favicon hash fingerprinting module for recon
 #
 # Fetches a target's favicon and computes hashes for fingerprinting:
 # MD5 hash for general identification and MurmurHash3 (Shodan-compatible)
@@ -8,8 +8,8 @@
 #
 
 # Prevent multiple sourcing
-[[ -n "${_RECOND_MODULE_FAVICON_LOADED:-}" ]] && return 0
-_RECOND_MODULE_FAVICON_LOADED=1
+[[ -n "${_RECON_MODULE_FAVICON_LOADED:-}" ]] && return 0
+_RECON_MODULE_FAVICON_LOADED=1
 
 # Module info
 MODULE_FAVICON_NAME="favicon"

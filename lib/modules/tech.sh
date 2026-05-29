@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# tech.sh - Technology detection module for recond
+# tech.sh - Technology detection module for recon
 #
 # Detects technologies from HTML content and HTTP headers:
 # - Frontend frameworks (React, Vue, Angular, etc.)
@@ -9,8 +9,8 @@
 #
 
 # Prevent multiple sourcing
-[[ -n "${_RECOND_MODULE_TECH_LOADED:-}" ]] && return 0
-_RECOND_MODULE_TECH_LOADED=1
+[[ -n "${_RECON_MODULE_TECH_LOADED:-}" ]] && return 0
+_RECON_MODULE_TECH_LOADED=1
 
 # Module info
 MODULE_TECH_NAME="tech"

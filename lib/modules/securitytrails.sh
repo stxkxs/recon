@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 #
-# securitytrails.sh - SecurityTrails domain intelligence module for recond
+# securitytrails.sh - SecurityTrails domain intelligence module for recon
 #
 # Queries the SecurityTrails API for domain information including:
 # subdomains, associated domains, DNS records, and domain metadata.
 #
 
 # Prevent multiple sourcing
-[[ -n "${_RECOND_MODULE_SECURITYTRAILS_LOADED:-}" ]] && return 0
-_RECOND_MODULE_SECURITYTRAILS_LOADED=1
+[[ -n "${_RECON_MODULE_SECURITYTRAILS_LOADED:-}" ]] && return 0
+_RECON_MODULE_SECURITYTRAILS_LOADED=1
 
 # Module info
 MODULE_SECURITYTRAILS_NAME="securitytrails"
@@ -30,7 +30,7 @@ securitytrails_run() {
 
     # If no API key, return error JSON
     if [[ -z "$api_key" ]]; then
-        warn "SecurityTrails: no API key configured (set RECOND_API_SECURITYTRAILS or add to config)"
+        warn "SecurityTrails: no API key configured (set RECON_API_SECURITYTRAILS or add to config)"
         jq -n --arg t "$target" '{
             error: "no_api_key",
             domain_info: {},

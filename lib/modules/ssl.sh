@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# ssl.sh - SSL/TLS certificate analysis module for recond
+# ssl.sh - SSL/TLS certificate analysis module for recon
 #
 # Analyzes SSL certificates including:
 # - Subject and issuer information
@@ -10,8 +10,8 @@
 #
 
 # Prevent multiple sourcing
-[[ -n "${_RECOND_MODULE_SSL_LOADED:-}" ]] && return 0
-_RECOND_MODULE_SSL_LOADED=1
+[[ -n "${_RECON_MODULE_SSL_LOADED:-}" ]] && return 0
+_RECON_MODULE_SSL_LOADED=1
 
 # Module info
 MODULE_SSL_NAME="ssl"

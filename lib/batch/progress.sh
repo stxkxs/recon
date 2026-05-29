@@ -6,8 +6,8 @@
 #
 
 # Prevent multiple sourcing
-[[ -n "${_RECOND_BATCH_PROGRESS_LOADED:-}" ]] && return 0
-_RECOND_BATCH_PROGRESS_LOADED=1
+[[ -n "${_RECON_BATCH_PROGRESS_LOADED:-}" ]] && return 0
+_RECON_BATCH_PROGRESS_LOADED=1
 
 # Progress state
 _PROGRESS_TOTAL=0
@@ -80,7 +80,7 @@ progress_eta() {
 progress_display() {
     local target=${1:-""}
 
-    [[ "$RECOND_OUTPUT_FORMAT" == "json" ]] && return 0
+    [[ "$RECON_OUTPUT_FORMAT" == "json" ]] && return 0
 
     local percent=0
     if [[ $_PROGRESS_TOTAL -gt 0 ]]; then
@@ -134,7 +134,7 @@ progress_display() {
 # Display final summary
 # Usage: progress_summary
 progress_summary() {
-    [[ "$RECOND_OUTPUT_FORMAT" == "json" ]] && return 0
+    [[ "$RECON_OUTPUT_FORMAT" == "json" ]] && return 0
 
     local now
     now=$(date +%s)
@@ -177,7 +177,7 @@ _SPINNER_PID=""
 spinner_start() {
     local message=${1:-"Processing..."}
 
-    [[ "$RECOND_OUTPUT_FORMAT" == "json" ]] && return 0
+    [[ "$RECON_OUTPUT_FORMAT" == "json" ]] && return 0
 
     (
         local i=0
@@ -209,7 +209,7 @@ counter_display() {
     local total=$2
     local message=${3:-"Processing"}
 
-    [[ "$RECOND_OUTPUT_FORMAT" == "json" ]] && return 0
+    [[ "$RECON_OUTPUT_FORMAT" == "json" ]] && return 0
 
     local percent=0
     if [[ $total -gt 0 ]]; then
@@ -221,6 +221,6 @@ counter_display() {
 
 # Complete counter display
 counter_complete() {
-    [[ "$RECOND_OUTPUT_FORMAT" == "json" ]] && return 0
+    [[ "$RECON_OUTPUT_FORMAT" == "json" ]] && return 0
     echo -e "\r\033[2K${GREEN}✓${NC} Complete"
 }

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# cors.sh - CORS misconfiguration detection module for recond
+# cors.sh - CORS misconfiguration detection module for recon
 #
 # Tests for common CORS misconfigurations:
 # - Wildcard Access-Control-Allow-Origin
@@ -11,8 +11,8 @@
 #
 
 # Prevent multiple sourcing
-[[ -n "${_RECOND_MODULE_CORS_LOADED:-}" ]] && return 0
-_RECOND_MODULE_CORS_LOADED=1
+[[ -n "${_RECON_MODULE_CORS_LOADED:-}" ]] && return 0
+_RECON_MODULE_CORS_LOADED=1
 
 # Module info
 MODULE_CORS_NAME="cors"

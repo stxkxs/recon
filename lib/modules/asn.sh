@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 #
-# asn.sh - ASN expansion and prefix enumeration module for recond
+# asn.sh - ASN expansion and prefix enumeration module for recon
 #
 # Performs ASN lookups via Team Cymru DNS and enumerates all
 # announced prefixes via RADB whois for network mapping.
 #
 
 # Prevent multiple sourcing
-[[ -n "${_RECOND_MODULE_ASN_LOADED:-}" ]] && return 0
-_RECOND_MODULE_ASN_LOADED=1
+[[ -n "${_RECON_MODULE_ASN_LOADED:-}" ]] && return 0
+_RECON_MODULE_ASN_LOADED=1
 
 # Module info
 MODULE_ASN_NAME="asn"

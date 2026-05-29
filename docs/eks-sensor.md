@@ -1,20 +1,20 @@
-# recond as an in-cluster sensor (design)
+# recon as an in-cluster sensor (design)
 
-> Status: design / not yet built. This captures the repositioning of recond
+> Status: design / not yet built. This captures the repositioning of recon
 > from an external CLI into a node-resident reconnaissance sensor for
-> Kubernetes/EKS. Today recond runs once and exits; the sensor is a
+> Kubernetes/EKS. Today recon runs once and exits; the sensor is a
 > longer-running deployment that reuses the same scan modules.
 
 ## Positioning
 
 `cloudgov` governs from the **control-plane side** — IAM, cost, drift,
-compliance: *"is the configuration correct?"* recond, run inside the cluster,
+compliance: *"is the configuration correct?"* recon, run inside the cluster,
 is the **data-plane complement**: *"what is actually reachable and exposed
 right now, from where a compromised pod would stand?"* The two are halves of
-the same posture story — cloudgov says *the node role is too broad*; recond
+the same posture story — cloudgov says *the node role is too broad*; recon
 says *and a pod can actually reach it*.
 
-The pivot is conceptual, not a rewrite: recond's modules already take a target,
+The pivot is conceptual, not a rewrite: recon's modules already take a target,
 gather security-relevant signal, and score it. In a cluster every node, pod,
 and service is a target — so the modules become introspective rather than
 outward-facing.
@@ -69,12 +69,12 @@ coverage — mirroring the `eks-agent-platform` operator pattern.
 The `score` module already emits an A–F grade; map F/E → high, D/C → medium,
 B/A → low, with per-module overrides (IMDS-reachable is always high regardless
 of aggregate score). Emit findings as Prometheus metrics
-(`recond_finding{severity,module,target,node}`) → Alertmanager → existing
+(`recon_finding{severity,module,target,node}`) → Alertmanager → existing
 routes. Kubernetes Events / CRD status / EventBridge are alternative sinks.
 
 ## Runtime considerations
 
-- recond is run-once-emit-JSON-exit Bash. The sensor needs a scheduling loop.
+- recon is run-once-emit-JSON-exit Bash. The sensor needs a scheduling loop.
   Prototype: a thin loop wrapping the existing modules (fine at multi-minute
   cadence; Bash cold-starts `curl`/`dig`/`openssl` per cycle). Longer term:
   keep Bash as the scan engine, add a small controller shell (Go) for
@@ -85,7 +85,7 @@ routes. Kubernetes Events / CRD status / EventBridge are alternative sinks.
 
 ## Phased roadmap
 
-1. Package recond as a container + Helm chart (single-scan Job).
+1. Package recon as a container + Helm chart (single-scan Job).
 2. Add a scheduling loop and Prometheus metric emission; ship the cert-posture
    sweep (strategy 6) as the first always-on check.
 3. DaemonSet vantage scanning + IMDS canary (strategies 1, 2).

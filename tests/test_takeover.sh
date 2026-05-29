@@ -10,7 +10,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
 # Force colors for test output
-export RECOND_COLOR=always
+export RECON_COLOR=always
 
 # Source required libraries
 source "${PROJECT_ROOT}/lib/core/common.sh"
@@ -222,8 +222,8 @@ echo ""
 
 echo "--- takeover_run without scan data ---"
 
-# Unset RECOND_SCAN_JSON to test fallback behavior
-unset RECOND_SCAN_JSON 2>/dev/null || true
+# Unset RECON_SCAN_JSON to test fallback behavior
+unset RECON_SCAN_JSON 2>/dev/null || true
 
 result=$(takeover_run "example.com")
 assert_json_valid "$result" "takeover_run without scan data returns valid JSON"
@@ -260,8 +260,8 @@ echo ""
 echo "--- takeover_run with mock scan data ---"
 
 # Create mock scan JSON with subdomain data that includes CNAMEs
-export RECOND_SCAN_JSON
-RECOND_SCAN_JSON=$(jq -n '{
+export RECON_SCAN_JSON
+RECON_SCAN_JSON=$(jq -n '{
     results: {
         subdomain: {
             data: {
@@ -292,7 +292,7 @@ assert_json_value "$result" "total_subdomains" "5" "total_subdomains is 5"
 # checked should be 5
 assert_json_value "$result" "checked" "5" "checked is 5"
 
-unset RECOND_SCAN_JSON
+unset RECON_SCAN_JSON
 
 echo ""
 
@@ -300,8 +300,8 @@ echo ""
 
 echo "--- takeover_run with empty scan data ---"
 
-export RECOND_SCAN_JSON
-RECOND_SCAN_JSON=$(jq -n '{
+export RECON_SCAN_JSON
+RECON_SCAN_JSON=$(jq -n '{
     results: {
         subdomain: {
             data: {
@@ -327,7 +327,7 @@ else
     echo -e "${RED}✗${NC} Should fall back to target domain check, got total=$total"
 fi
 
-unset RECOND_SCAN_JSON
+unset RECON_SCAN_JSON
 
 echo ""
 

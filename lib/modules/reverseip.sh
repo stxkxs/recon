@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 #
-# reverseip.sh - Reverse IP lookup module for recond
+# reverseip.sh - Reverse IP lookup module for recon
 #
 # Queries the HackerTarget API to find domains hosted on the same IP address.
 #
 
 # Prevent multiple sourcing
-[[ -n "${_RECOND_MODULE_REVERSEIP_LOADED:-}" ]] && return 0
-_RECOND_MODULE_REVERSEIP_LOADED=1
+[[ -n "${_RECON_MODULE_REVERSEIP_LOADED:-}" ]] && return 0
+_RECON_MODULE_REVERSEIP_LOADED=1
 
 # Module info
 MODULE_REVERSEIP_NAME="reverseip"

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# dirs.sh - Directory and sensitive file discovery module for recond
+# dirs.sh - Directory and sensitive file discovery module for recon
 #
 # Probes common directories, config files, admin panels, API docs,
 # debug endpoints, backup files, actuator endpoints, and security
@@ -8,8 +8,8 @@
 #
 
 # Prevent multiple sourcing
-[[ -n "${_RECOND_MODULE_DIRS_LOADED:-}" ]] && return 0
-_RECOND_MODULE_DIRS_LOADED=1
+[[ -n "${_RECON_MODULE_DIRS_LOADED:-}" ]] && return 0
+_RECON_MODULE_DIRS_LOADED=1
 
 # Module info
 MODULE_DIRS_NAME="dirs"

@@ -1,46 +1,46 @@
-# Docker Compose for recond - Infrastructure reconnaissance toolkit
+# Docker Compose for recon - Infrastructure reconnaissance toolkit
 #
 # Usage:
-#   docker-compose run --rm recond example.com
-#   docker-compose run --rm recond --json example.com
-#   docker-compose run --rm recond --batch /data/targets.txt
+#   docker-compose run --rm recon example.com
+#   docker-compose run --rm recon --json example.com
+#   docker-compose run --rm recon --batch /data/targets.txt
 #
 
 services:
-  recond:
+  recon:
     build:
       context: ..
       dockerfile: docker/Dockerfile
-    image: recond:latest
-    container_name: recond
-    user: recond
+    image: recon:latest
+    container_name: recon
+    user: recon
 
     # Mount volumes for persistent data
     volumes:
       # Results output directory
-      - ./results:/home/recond/.local/share/recond/results
+      - ./results:/home/recon/.local/share/recon/results
 
       # State directory for batch processing
-      - ./state:/home/recond/.local/share/recond/state
+      - ./state:/home/recon/.local/share/recon/state
 
       # Custom config (optional)
-      - ./config:/home/recond/.config/recond:ro
+      - ./config:/home/recon/.config/recon:ro
 
       # Input files for batch processing
       - ./data:/data:ro
 
     # Environment variables
     environment:
-      - RECOND_OUTPUT_FORMAT=${RECOND_OUTPUT_FORMAT:-terminal}
-      - RECOND_COLOR=${RECOND_COLOR:-auto}
-      - RECOND_DEBUG=${RECOND_DEBUG:-0}
+      - RECON_OUTPUT_FORMAT=${RECON_OUTPUT_FORMAT:-terminal}
+      - RECON_COLOR=${RECON_COLOR:-auto}
+      - RECON_DEBUG=${RECON_DEBUG:-0}
       # API keys (optional)
-      - RECOND_API_SHODAN=${RECOND_API_SHODAN:-}
-      - RECOND_API_SECURITYTRAILS=${RECOND_API_SECURITYTRAILS:-}
+      - RECON_API_SHODAN=${RECON_API_SHODAN:-}
+      - RECON_API_SECURITYTRAILS=${RECON_API_SECURITYTRAILS:-}
 
     # Network settings
     networks:
-      - recond-net
+      - recon-net
 
     # Resource limits
     deploy:
@@ -63,10 +63,10 @@ services:
     command: ["--help"]
 
   # Batch processing service with extended resources
-  recond-batch:
+  recon-batch:
     extends:
-      service: recond
-    container_name: recond-batch
+      service: recon
+    container_name: recon-batch
     deploy:
       resources:
         limits:
@@ -81,10 +81,10 @@ services:
     command: ["--batch", "/data/targets.txt", "--parallel", "4"]
 
 networks:
-  recond-net:
+  recon-net:
     driver: bridge
 
 # Volume definitions (for named volumes if preferred)
 # volumes:
-#   recond-results:
-#   recond-state:
+#   recon-results:
+#   recon-state:

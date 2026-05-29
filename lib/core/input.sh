@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# input.sh - Input normalization and validation for recond
+# input.sh - Input normalization and validation for recon
 #
 # Handles various input formats:
 #   - URLs with protocols (https://example.com/path)
@@ -10,8 +10,8 @@
 #
 
 # Prevent multiple sourcing
-[[ -n "${_RECOND_INPUT_LOADED:-}" ]] && return 0
-_RECOND_INPUT_LOADED=1
+[[ -n "${_RECON_INPUT_LOADED:-}" ]] && return 0
+_RECON_INPUT_LOADED=1
 
 # Input type constants
 readonly INPUT_TYPE_DOMAIN="domain"

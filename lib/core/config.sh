@@ -1,99 +1,99 @@
 #!/usr/bin/env bash
 #
-# config.sh - Configuration loading and management for recond
+# config.sh - Configuration loading and management for recon
 #
 # Loads configuration from YAML files using yq, with fallback defaults
 # and environment variable overrides.
 #
 
 # Prevent multiple sourcing
-[[ -n "${_RECOND_CONFIG_LOADED:-}" ]] && return 0
-_RECOND_CONFIG_LOADED=1
+[[ -n "${_RECON_CONFIG_LOADED:-}" ]] && return 0
+_RECON_CONFIG_LOADED=1
 
 # Default configuration values
-declare -A RECOND_CONFIG
+declare -A RECON_CONFIG
 
 # Initialize defaults
 _init_config_defaults() {
     # Global settings
-    RECOND_CONFIG[global.output_dir]="${HOME}/.local/share/recond/results"
-    RECOND_CONFIG[global.output_format]="terminal"
-    RECOND_CONFIG[global.color]="auto"
-    RECOND_CONFIG[global.retention_days]="30"
+    RECON_CONFIG[global.output_dir]="${HOME}/.local/share/recon/results"
+    RECON_CONFIG[global.output_format]="terminal"
+    RECON_CONFIG[global.color]="auto"
+    RECON_CONFIG[global.retention_days]="30"
 
     # Timeouts (seconds)
-    RECOND_CONFIG[timeouts.dns]="5"
-    RECOND_CONFIG[timeouts.http]="10"
-    RECOND_CONFIG[timeouts.ssl]="5"
-    RECOND_CONFIG[timeouts.whois]="15"
+    RECON_CONFIG[timeouts.dns]="5"
+    RECON_CONFIG[timeouts.http]="10"
+    RECON_CONFIG[timeouts.ssl]="5"
+    RECON_CONFIG[timeouts.whois]="15"
 
     # Batch processing
-    RECOND_CONFIG[batch.max_parallel]="4"
-    RECOND_CONFIG[batch.checkpoint_interval]="10"
-    RECOND_CONFIG[batch.resume_on_start]="true"
+    RECON_CONFIG[batch.max_parallel]="4"
+    RECON_CONFIG[batch.checkpoint_interval]="10"
+    RECON_CONFIG[batch.resume_on_start]="true"
 
     # Rate limits
-    RECOND_CONFIG[rate_limits.requests_per_second]="2"
-    RECOND_CONFIG[rate_limits.whois_delay]="1"
+    RECON_CONFIG[rate_limits.requests_per_second]="2"
+    RECON_CONFIG[rate_limits.whois_delay]="1"
 
     # Module settings
-    RECOND_CONFIG[modules.dns.enabled]="true"
-    RECOND_CONFIG[modules.dns.record_types]="A,AAAA,MX,TXT,NS,CAA"
-    RECOND_CONFIG[modules.subdomain.enabled]="true"
-    RECOND_CONFIG[modules.subdomain.wordlist]=""
-    RECOND_CONFIG[modules.ssl.enabled]="true"
-    RECOND_CONFIG[modules.http.enabled]="true"
-    RECOND_CONFIG[modules.whois.enabled]="true"
-    RECOND_CONFIG[modules.files.enabled]="true"
-    RECOND_CONFIG[modules.tech.enabled]="true"
-    RECOND_CONFIG[modules.ip.enabled]="true"
-    RECOND_CONFIG[modules.ports.enabled]="true"
-    RECOND_CONFIG[modules.cors.enabled]="true"
-    RECOND_CONFIG[modules.score.enabled]="true"
-    RECOND_CONFIG[modules.crt.enabled]="true"
-    RECOND_CONFIG[modules.shodan.enabled]="true"
-    RECOND_CONFIG[modules.virustotal.enabled]="true"
-    RECOND_CONFIG[modules.waf.enabled]="true"
-    RECOND_CONFIG[modules.dnssec.enabled]="true"
-    RECOND_CONFIG[modules.takeover.enabled]="true"
-    RECOND_CONFIG[modules.wayback.enabled]="true"
-    RECOND_CONFIG[modules.securitytrails.enabled]="true"
-    RECOND_CONFIG[modules.reverseip.enabled]="true"
-    RECOND_CONFIG[modules.asn.enabled]="true"
-    RECOND_CONFIG[modules.axfr.enabled]="true"
-    RECOND_CONFIG[modules.methods.enabled]="true"
-    RECOND_CONFIG[modules.dirs.enabled]="true"
-    RECOND_CONFIG[modules.dirs.wordlist]=""
-    RECOND_CONFIG[modules.dirs.request_delay]="0.2"
-    RECOND_CONFIG[modules.jsanalysis.enabled]="true"
-    RECOND_CONFIG[modules.jsanalysis.max_files]="20"
-    RECOND_CONFIG[modules.jsanalysis.max_file_size]="2097152"
-    RECOND_CONFIG[modules.favicon.enabled]="true"
-    RECOND_CONFIG[modules.emailsec.enabled]="true"
+    RECON_CONFIG[modules.dns.enabled]="true"
+    RECON_CONFIG[modules.dns.record_types]="A,AAAA,MX,TXT,NS,CAA"
+    RECON_CONFIG[modules.subdomain.enabled]="true"
+    RECON_CONFIG[modules.subdomain.wordlist]=""
+    RECON_CONFIG[modules.ssl.enabled]="true"
+    RECON_CONFIG[modules.http.enabled]="true"
+    RECON_CONFIG[modules.whois.enabled]="true"
+    RECON_CONFIG[modules.files.enabled]="true"
+    RECON_CONFIG[modules.tech.enabled]="true"
+    RECON_CONFIG[modules.ip.enabled]="true"
+    RECON_CONFIG[modules.ports.enabled]="true"
+    RECON_CONFIG[modules.cors.enabled]="true"
+    RECON_CONFIG[modules.score.enabled]="true"
+    RECON_CONFIG[modules.crt.enabled]="true"
+    RECON_CONFIG[modules.shodan.enabled]="true"
+    RECON_CONFIG[modules.virustotal.enabled]="true"
+    RECON_CONFIG[modules.waf.enabled]="true"
+    RECON_CONFIG[modules.dnssec.enabled]="true"
+    RECON_CONFIG[modules.takeover.enabled]="true"
+    RECON_CONFIG[modules.wayback.enabled]="true"
+    RECON_CONFIG[modules.securitytrails.enabled]="true"
+    RECON_CONFIG[modules.reverseip.enabled]="true"
+    RECON_CONFIG[modules.asn.enabled]="true"
+    RECON_CONFIG[modules.axfr.enabled]="true"
+    RECON_CONFIG[modules.methods.enabled]="true"
+    RECON_CONFIG[modules.dirs.enabled]="true"
+    RECON_CONFIG[modules.dirs.wordlist]=""
+    RECON_CONFIG[modules.dirs.request_delay]="0.2"
+    RECON_CONFIG[modules.jsanalysis.enabled]="true"
+    RECON_CONFIG[modules.jsanalysis.max_files]="20"
+    RECON_CONFIG[modules.jsanalysis.max_file_size]="2097152"
+    RECON_CONFIG[modules.favicon.enabled]="true"
+    RECON_CONFIG[modules.emailsec.enabled]="true"
 
     # Timeouts for new modules
-    RECOND_CONFIG[timeouts.ports]="2"
-    RECOND_CONFIG[timeouts.crt]="15"
-    RECOND_CONFIG[timeouts.waf]="10"
-    RECOND_CONFIG[timeouts.dnssec]="10"
-    RECOND_CONFIG[timeouts.takeover]="15"
-    RECOND_CONFIG[timeouts.shodan]="10"
-    RECOND_CONFIG[timeouts.virustotal]="10"
-    RECOND_CONFIG[timeouts.wayback]="30"
-    RECOND_CONFIG[timeouts.securitytrails]="15"
-    RECOND_CONFIG[timeouts.reverseip]="10"
-    RECOND_CONFIG[timeouts.asn]="15"
-    RECOND_CONFIG[timeouts.axfr]="10"
-    RECOND_CONFIG[timeouts.methods]="10"
-    RECOND_CONFIG[timeouts.dirs]="10"
-    RECOND_CONFIG[timeouts.jsanalysis]="15"
-    RECOND_CONFIG[timeouts.favicon]="10"
-    RECOND_CONFIG[timeouts.emailsec]="15"
+    RECON_CONFIG[timeouts.ports]="2"
+    RECON_CONFIG[timeouts.crt]="15"
+    RECON_CONFIG[timeouts.waf]="10"
+    RECON_CONFIG[timeouts.dnssec]="10"
+    RECON_CONFIG[timeouts.takeover]="15"
+    RECON_CONFIG[timeouts.shodan]="10"
+    RECON_CONFIG[timeouts.virustotal]="10"
+    RECON_CONFIG[timeouts.wayback]="30"
+    RECON_CONFIG[timeouts.securitytrails]="15"
+    RECON_CONFIG[timeouts.reverseip]="10"
+    RECON_CONFIG[timeouts.asn]="15"
+    RECON_CONFIG[timeouts.axfr]="10"
+    RECON_CONFIG[timeouts.methods]="10"
+    RECON_CONFIG[timeouts.dirs]="10"
+    RECON_CONFIG[timeouts.jsanalysis]="15"
+    RECON_CONFIG[timeouts.favicon]="10"
+    RECON_CONFIG[timeouts.emailsec]="15"
 
     # API keys (empty by default, use env vars)
-    RECOND_CONFIG[api_keys.shodan]=""
-    RECOND_CONFIG[api_keys.securitytrails]=""
-    RECOND_CONFIG[api_keys.virustotal]=""
+    RECON_CONFIG[api_keys.shodan]=""
+    RECON_CONFIG[api_keys.securitytrails]=""
+    RECON_CONFIG[api_keys.virustotal]=""
 }
 
 # Check if yq is available
@@ -129,7 +129,7 @@ _yaml_get() {
 # Find config file in standard locations
 # Usage: config_file=$(find_config_file)
 find_config_file() {
-    local custom_config="${RECOND_CONFIG_FILE:-}"
+    local custom_config="${RECON_CONFIG_FILE:-}"
 
     # Check custom path first
     if [[ -n "$custom_config" ]] && [[ -f "$custom_config" ]]; then
@@ -139,13 +139,13 @@ find_config_file() {
 
     # Standard locations
     local locations=(
-        "./recond.yaml"
-        "./recond.yml"
-        "./.recond.yaml"
-        "./.recond.yml"
-        "${XDG_CONFIG_HOME:-$HOME/.config}/recond/recond.yaml"
-        "${HOME}/.recond.yaml"
-        "/etc/recond/recond.yaml"
+        "./recon.yaml"
+        "./recon.yml"
+        "./.recon.yaml"
+        "./.recon.yml"
+        "${XDG_CONFIG_HOME:-$HOME/.config}/recon/recon.yaml"
+        "${HOME}/.recon.yaml"
+        "/etc/recon/recon.yaml"
     )
 
     for loc in "${locations[@]}"; do
@@ -176,10 +176,10 @@ load_config() {
         debug "Loading config from: $config_file"
 
         # Load each known config key
-        for key in "${!RECOND_CONFIG[@]}"; do
+        for key in "${!RECON_CONFIG[@]}"; do
             local value
             if value=$(_yaml_get "$key" "$config_file"); then
-                RECOND_CONFIG[$key]="$value"
+                RECON_CONFIG[$key]="$value"
             fi
         done
     fi
@@ -189,45 +189,45 @@ load_config() {
 }
 
 # Apply environment variable overrides
-# Env vars use RECOND_ prefix with underscores
-# e.g., RECOND_GLOBAL_OUTPUT_FORMAT, RECOND_TIMEOUTS_DNS
+# Env vars use RECON_ prefix with underscores
+# e.g., RECON_GLOBAL_OUTPUT_FORMAT, RECON_TIMEOUTS_DNS
 _apply_env_overrides() {
     # Global settings
-    [[ -n "${RECOND_OUTPUT_DIR:-}" ]] && RECOND_CONFIG[global.output_dir]="$RECOND_OUTPUT_DIR" || true
-    [[ -n "${RECOND_OUTPUT_FORMAT:-}" ]] && RECOND_CONFIG[global.output_format]="$RECOND_OUTPUT_FORMAT" || true
-    [[ -n "${RECOND_COLOR:-}" ]] && RECOND_CONFIG[global.color]="$RECOND_COLOR" || true
+    [[ -n "${RECON_OUTPUT_DIR:-}" ]] && RECON_CONFIG[global.output_dir]="$RECON_OUTPUT_DIR" || true
+    [[ -n "${RECON_OUTPUT_FORMAT:-}" ]] && RECON_CONFIG[global.output_format]="$RECON_OUTPUT_FORMAT" || true
+    [[ -n "${RECON_COLOR:-}" ]] && RECON_CONFIG[global.color]="$RECON_COLOR" || true
 
     # Timeouts
-    [[ -n "${RECOND_TIMEOUT_DNS:-}" ]] && RECOND_CONFIG[timeouts.dns]="$RECOND_TIMEOUT_DNS" || true
-    [[ -n "${RECOND_TIMEOUT_HTTP:-}" ]] && RECOND_CONFIG[timeouts.http]="$RECOND_TIMEOUT_HTTP" || true
-    [[ -n "${RECOND_TIMEOUT_SSL:-}" ]] && RECOND_CONFIG[timeouts.ssl]="$RECOND_TIMEOUT_SSL" || true
-    [[ -n "${RECOND_TIMEOUT_WHOIS:-}" ]] && RECOND_CONFIG[timeouts.whois]="$RECOND_TIMEOUT_WHOIS" || true
+    [[ -n "${RECON_TIMEOUT_DNS:-}" ]] && RECON_CONFIG[timeouts.dns]="$RECON_TIMEOUT_DNS" || true
+    [[ -n "${RECON_TIMEOUT_HTTP:-}" ]] && RECON_CONFIG[timeouts.http]="$RECON_TIMEOUT_HTTP" || true
+    [[ -n "${RECON_TIMEOUT_SSL:-}" ]] && RECON_CONFIG[timeouts.ssl]="$RECON_TIMEOUT_SSL" || true
+    [[ -n "${RECON_TIMEOUT_WHOIS:-}" ]] && RECON_CONFIG[timeouts.whois]="$RECON_TIMEOUT_WHOIS" || true
 
     # Batch settings
-    [[ -n "${RECOND_PARALLEL:-}" ]] && RECOND_CONFIG[batch.max_parallel]="$RECOND_PARALLEL" || true
+    [[ -n "${RECON_PARALLEL:-}" ]] && RECON_CONFIG[batch.max_parallel]="$RECON_PARALLEL" || true
 
     # API keys
-    [[ -n "${RECOND_API_SHODAN:-}" ]] && RECOND_CONFIG[api_keys.shodan]="$RECOND_API_SHODAN" || true
-    [[ -n "${RECOND_API_SECURITYTRAILS:-}" ]] && RECOND_CONFIG[api_keys.securitytrails]="$RECOND_API_SECURITYTRAILS" || true
-    [[ -n "${RECOND_API_VIRUSTOTAL:-}" ]] && RECOND_CONFIG[api_keys.virustotal]="$RECOND_API_VIRUSTOTAL" || true
+    [[ -n "${RECON_API_SHODAN:-}" ]] && RECON_CONFIG[api_keys.shodan]="$RECON_API_SHODAN" || true
+    [[ -n "${RECON_API_SECURITYTRAILS:-}" ]] && RECON_CONFIG[api_keys.securitytrails]="$RECON_API_SECURITYTRAILS" || true
+    [[ -n "${RECON_API_VIRUSTOTAL:-}" ]] && RECON_CONFIG[api_keys.virustotal]="$RECON_API_VIRUSTOTAL" || true
 
     # Timeout overrides for new modules
-    [[ -n "${RECOND_TIMEOUT_CRT:-}" ]] && RECOND_CONFIG[timeouts.crt]="$RECOND_TIMEOUT_CRT" || true
-    [[ -n "${RECOND_TIMEOUT_WAF:-}" ]] && RECOND_CONFIG[timeouts.waf]="$RECOND_TIMEOUT_WAF" || true
-    [[ -n "${RECOND_TIMEOUT_DNSSEC:-}" ]] && RECOND_CONFIG[timeouts.dnssec]="$RECOND_TIMEOUT_DNSSEC" || true
-    [[ -n "${RECOND_TIMEOUT_TAKEOVER:-}" ]] && RECOND_CONFIG[timeouts.takeover]="$RECOND_TIMEOUT_TAKEOVER" || true
-    [[ -n "${RECOND_TIMEOUT_SHODAN:-}" ]] && RECOND_CONFIG[timeouts.shodan]="$RECOND_TIMEOUT_SHODAN" || true
-    [[ -n "${RECOND_TIMEOUT_VIRUSTOTAL:-}" ]] && RECOND_CONFIG[timeouts.virustotal]="$RECOND_TIMEOUT_VIRUSTOTAL" || true
-    [[ -n "${RECOND_TIMEOUT_WAYBACK:-}" ]] && RECOND_CONFIG[timeouts.wayback]="$RECOND_TIMEOUT_WAYBACK" || true
-    [[ -n "${RECOND_TIMEOUT_SECURITYTRAILS:-}" ]] && RECOND_CONFIG[timeouts.securitytrails]="$RECOND_TIMEOUT_SECURITYTRAILS" || true
-    [[ -n "${RECOND_TIMEOUT_REVERSEIP:-}" ]] && RECOND_CONFIG[timeouts.reverseip]="$RECOND_TIMEOUT_REVERSEIP" || true
-    [[ -n "${RECOND_TIMEOUT_ASN:-}" ]] && RECOND_CONFIG[timeouts.asn]="$RECOND_TIMEOUT_ASN" || true
-    [[ -n "${RECOND_TIMEOUT_AXFR:-}" ]] && RECOND_CONFIG[timeouts.axfr]="$RECOND_TIMEOUT_AXFR" || true
-    [[ -n "${RECOND_TIMEOUT_METHODS:-}" ]] && RECOND_CONFIG[timeouts.methods]="$RECOND_TIMEOUT_METHODS" || true
-    [[ -n "${RECOND_TIMEOUT_DIRS:-}" ]] && RECOND_CONFIG[timeouts.dirs]="$RECOND_TIMEOUT_DIRS" || true
-    [[ -n "${RECOND_TIMEOUT_JSANALYSIS:-}" ]] && RECOND_CONFIG[timeouts.jsanalysis]="$RECOND_TIMEOUT_JSANALYSIS" || true
-    [[ -n "${RECOND_TIMEOUT_FAVICON:-}" ]] && RECOND_CONFIG[timeouts.favicon]="$RECOND_TIMEOUT_FAVICON" || true
-    [[ -n "${RECOND_TIMEOUT_EMAILSEC:-}" ]] && RECOND_CONFIG[timeouts.emailsec]="$RECOND_TIMEOUT_EMAILSEC" || true
+    [[ -n "${RECON_TIMEOUT_CRT:-}" ]] && RECON_CONFIG[timeouts.crt]="$RECON_TIMEOUT_CRT" || true
+    [[ -n "${RECON_TIMEOUT_WAF:-}" ]] && RECON_CONFIG[timeouts.waf]="$RECON_TIMEOUT_WAF" || true
+    [[ -n "${RECON_TIMEOUT_DNSSEC:-}" ]] && RECON_CONFIG[timeouts.dnssec]="$RECON_TIMEOUT_DNSSEC" || true
+    [[ -n "${RECON_TIMEOUT_TAKEOVER:-}" ]] && RECON_CONFIG[timeouts.takeover]="$RECON_TIMEOUT_TAKEOVER" || true
+    [[ -n "${RECON_TIMEOUT_SHODAN:-}" ]] && RECON_CONFIG[timeouts.shodan]="$RECON_TIMEOUT_SHODAN" || true
+    [[ -n "${RECON_TIMEOUT_VIRUSTOTAL:-}" ]] && RECON_CONFIG[timeouts.virustotal]="$RECON_TIMEOUT_VIRUSTOTAL" || true
+    [[ -n "${RECON_TIMEOUT_WAYBACK:-}" ]] && RECON_CONFIG[timeouts.wayback]="$RECON_TIMEOUT_WAYBACK" || true
+    [[ -n "${RECON_TIMEOUT_SECURITYTRAILS:-}" ]] && RECON_CONFIG[timeouts.securitytrails]="$RECON_TIMEOUT_SECURITYTRAILS" || true
+    [[ -n "${RECON_TIMEOUT_REVERSEIP:-}" ]] && RECON_CONFIG[timeouts.reverseip]="$RECON_TIMEOUT_REVERSEIP" || true
+    [[ -n "${RECON_TIMEOUT_ASN:-}" ]] && RECON_CONFIG[timeouts.asn]="$RECON_TIMEOUT_ASN" || true
+    [[ -n "${RECON_TIMEOUT_AXFR:-}" ]] && RECON_CONFIG[timeouts.axfr]="$RECON_TIMEOUT_AXFR" || true
+    [[ -n "${RECON_TIMEOUT_METHODS:-}" ]] && RECON_CONFIG[timeouts.methods]="$RECON_TIMEOUT_METHODS" || true
+    [[ -n "${RECON_TIMEOUT_DIRS:-}" ]] && RECON_CONFIG[timeouts.dirs]="$RECON_TIMEOUT_DIRS" || true
+    [[ -n "${RECON_TIMEOUT_JSANALYSIS:-}" ]] && RECON_CONFIG[timeouts.jsanalysis]="$RECON_TIMEOUT_JSANALYSIS" || true
+    [[ -n "${RECON_TIMEOUT_FAVICON:-}" ]] && RECON_CONFIG[timeouts.favicon]="$RECON_TIMEOUT_FAVICON" || true
+    [[ -n "${RECON_TIMEOUT_EMAILSEC:-}" ]] && RECON_CONFIG[timeouts.emailsec]="$RECON_TIMEOUT_EMAILSEC" || true
 }
 
 # Get a config value
@@ -236,8 +236,8 @@ config_get() {
     local key=$1
     local default=${2:-}
 
-    if [[ -v "RECOND_CONFIG[$key]" ]]; then
-        echo "${RECOND_CONFIG[$key]}"
+    if [[ -v "RECON_CONFIG[$key]" ]]; then
+        echo "${RECON_CONFIG[$key]}"
     else
         echo "$default"
     fi
@@ -248,7 +248,7 @@ config_get() {
 config_set() {
     local key=$1
     local value=$2
-    RECOND_CONFIG[$key]="$value"
+    RECON_CONFIG[$key]="$value"
 }
 
 # Check if a module is enabled
@@ -276,7 +276,7 @@ get_api_key() {
 
     # Check env var as fallback
     if [[ -z "$key" ]]; then
-        local env_var="RECOND_API_${service^^}"
+        local env_var="RECON_API_${service^^}"
         key="${!env_var:-}"
     fi
 
@@ -287,12 +287,12 @@ get_api_key() {
 print_config() {
     echo "Current Configuration:"
     echo "====================="
-    for key in $(echo "${!RECOND_CONFIG[@]}" | tr ' ' '\n' | sort); do
+    for key in $(echo "${!RECON_CONFIG[@]}" | tr ' ' '\n' | sort); do
         # Mask API keys
-        if [[ "$key" == api_keys.* ]] && [[ -n "${RECOND_CONFIG[$key]}" ]]; then
+        if [[ "$key" == api_keys.* ]] && [[ -n "${RECON_CONFIG[$key]}" ]]; then
             echo "  $key = [REDACTED]"
         else
-            echo "  $key = ${RECOND_CONFIG[$key]}"
+            echo "  $key = ${RECON_CONFIG[$key]}"
         fi
     done
 }
@@ -337,7 +337,7 @@ validate_config() {
 
 # Export config to environment for subprocesses
 export_config_to_env() {
-    export RECOND_OUTPUT_FORMAT="${RECOND_CONFIG[global.output_format]}"
-    export RECOND_COLOR="${RECOND_CONFIG[global.color]}"
-    export RECOND_OUTPUT_DIR="${RECOND_CONFIG[global.output_dir]}"
+    export RECON_OUTPUT_FORMAT="${RECON_CONFIG[global.output_format]}"
+    export RECON_COLOR="${RECON_CONFIG[global.color]}"
+    export RECON_OUTPUT_DIR="${RECON_CONFIG[global.output_dir]}"
 }

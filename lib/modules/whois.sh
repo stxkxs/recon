@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 #
-# whois.sh - WHOIS lookup module for recond
+# whois.sh - WHOIS lookup module for recon
 #
 # Performs WHOIS lookups on discovered IP addresses
 # Extracts organization, network, and geographic information
 #
 
 # Prevent multiple sourcing
-[[ -n "${_RECOND_MODULE_WHOIS_LOADED:-}" ]] && return 0
-_RECOND_MODULE_WHOIS_LOADED=1
+[[ -n "${_RECON_MODULE_WHOIS_LOADED:-}" ]] && return 0
+_RECON_MODULE_WHOIS_LOADED=1
 
 # Module info
 MODULE_WHOIS_NAME="whois"

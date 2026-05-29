@@ -1,21 +1,21 @@
 #!/usr/bin/env bash
 #
-# common.sh - Shared utilities for recond
+# common.sh - Shared utilities for recon
 #
 # Provides: color definitions, logging functions, dependency checking,
 #           and common utility functions used across all modules.
 #
 
 # Prevent multiple sourcing
-[[ -n "${_RECOND_COMMON_LOADED:-}" ]] && return 0
-_RECOND_COMMON_LOADED=1
+[[ -n "${_RECON_COMMON_LOADED:-}" ]] && return 0
+_RECON_COMMON_LOADED=1
 
 # Version
-readonly RECOND_VERSION="2.1.0"
+readonly RECON_VERSION="2.1.0"
 
-# Colors for output (auto-detect terminal support or force with RECOND_COLOR=always)
-if [[ -t 1 ]] || [[ "${RECOND_COLOR:-auto}" == "always" ]]; then
-    if [[ "${RECOND_COLOR:-auto}" == "never" ]]; then
+# Colors for output (auto-detect terminal support or force with RECON_COLOR=always)
+if [[ -t 1 ]] || [[ "${RECON_COLOR:-auto}" == "always" ]]; then
+    if [[ "${RECON_COLOR:-auto}" == "never" ]]; then
         _USE_COLOR=false
     else
         _USE_COLOR=true
@@ -47,60 +47,57 @@ else
 fi
 
 # Output format (terminal or json)
-RECOND_OUTPUT_FORMAT="${RECOND_OUTPUT_FORMAT:-terminal}"
+RECON_OUTPUT_FORMAT="${RECON_OUTPUT_FORMAT:-terminal}"
 
 # Logging functions for terminal output
 header() {
-    [[ "$RECOND_OUTPUT_FORMAT" == "json" ]] && return 0
+    [[ "$RECON_OUTPUT_FORMAT" == "json" ]] && return 0
     echo -e "\n${BOLD}${BLUE}═══════════════════════════════════════════════════════════════${NC}"
     echo -e "${BOLD}${BLUE}  $1${NC}"
     echo -e "${BOLD}${BLUE}═══════════════════════════════════════════════════════════════${NC}\n"
 }
 
 subheader() {
-    [[ "$RECOND_OUTPUT_FORMAT" == "json" ]] && return 0
+    [[ "$RECON_OUTPUT_FORMAT" == "json" ]] && return 0
     echo -e "\n${CYAN}─── $1 ───${NC}\n"
 }
 
 success() {
-    [[ "$RECOND_OUTPUT_FORMAT" == "json" ]] && return 0
+    [[ "$RECON_OUTPUT_FORMAT" == "json" ]] && return 0
     echo -e "${GREEN}✓${NC} $1"
 }
 
 info() {
-    [[ "$RECOND_OUTPUT_FORMAT" == "json" ]] && return 0
+    [[ "$RECON_OUTPUT_FORMAT" == "json" ]] && return 0
     echo -e "${YELLOW}→${NC} $1"
 }
 
 warn() {
-    [[ "$RECOND_OUTPUT_FORMAT" == "json" ]] && return 0
+    [[ "$RECON_OUTPUT_FORMAT" == "json" ]] && return 0
     echo -e "${YELLOW}⚠${NC} $1" >&2
 }
 
 error() {
-    [[ "$RECOND_OUTPUT_FORMAT" == "json" ]] && return 0
+    [[ "$RECON_OUTPUT_FORMAT" == "json" ]] && return 0
     echo -e "${RED}✗${NC} $1" >&2
 }
 
 debug() {
-    [[ "${RECOND_DEBUG:-}" != "1" ]] && return 0
-    [[ "$RECOND_OUTPUT_FORMAT" == "json" ]] && return 0
+    [[ "${RECON_DEBUG:-}" != "1" ]] && return 0
+    [[ "$RECON_OUTPUT_FORMAT" == "json" ]] && return 0
     echo -e "${DIM}[DEBUG] $1${NC}" >&2
 }
 
 # Print banner
 print_banner() {
-    [[ "$RECOND_OUTPUT_FORMAT" == "json" ]] && return 0
+    [[ "$RECON_OUTPUT_FORMAT" == "json" ]] && return 0
     echo -e "${BOLD}${GREEN}"
-    cat <<'BANNER'
-                                     _
- _ __   ___   ___   ___   _ __    __| |
-| '__| / _ \ / __| / _ \ | '_ \  / _` |
-| |   |  __/| (__ | (_) || | | || (_| |
-|_|    \___| \___| \___/ |_| |_| \__,_|
-BANNER
+    echo "   _ __ ___  ___ ___  _ __"
+    echo "  | '__/ _ \\/ __/ _ \\| '_ \\"
+    echo "  | | |  __/ (_| (_) | | | |"
+    echo "  |_|  \\___|\\___\\___/|_| |_|"
     echo -e "${NC}"
-    echo -e "  ${DIM}infrastructure reconnaissance toolkit${NC} ${BOLD}v${RECOND_VERSION}${NC}"
+    echo -e "  ${DIM}infrastructure reconnaissance toolkit${NC} ${BOLD}v${RECON_VERSION}${NC}"
 }
 
 # Check for required tools

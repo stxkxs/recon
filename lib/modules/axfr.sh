@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 #
-# axfr.sh - DNS zone transfer testing module for recond
+# axfr.sh - DNS zone transfer testing module for recon
 #
 # Tests each authoritative nameserver for AXFR (zone transfer)
 # vulnerability and extracts transferred records if successful.
 #
 
 # Prevent multiple sourcing
-[[ -n "${_RECOND_MODULE_AXFR_LOADED:-}" ]] && return 0
-_RECOND_MODULE_AXFR_LOADED=1
+[[ -n "${_RECON_MODULE_AXFR_LOADED:-}" ]] && return 0
+_RECON_MODULE_AXFR_LOADED=1
 
 # Module info
 MODULE_AXFR_NAME="axfr"
