@@ -1,9 +1,11 @@
 # recon as an in-cluster sensor (design)
 
-> Status: design / not yet built. This captures the repositioning of recon
-> from an external CLI into a node-resident reconnaissance sensor for
-> Kubernetes/EKS. Today recon runs once and exits; the sensor is a
-> longer-running deployment that reuses the same scan modules.
+> Status: exploratory notes — NOT planned. A static audit of the target
+> platform found its reachability/exposure surface already covered
+> (Cilium default-deny NetworkPolicy, IMDSv2 + hop-limit, scoped IRSA,
+> internal-only ingress; Falco + trivy-operator + kyverno on top). The
+> in-cluster sensor isn't needed and is off the roadmap — recon stays a
+> CLI. Kept only as design notes in case a concrete trigger appears.
 
 ## Positioning
 
