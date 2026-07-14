@@ -23,7 +23,8 @@ favicon_run() {
     local timeout
     timeout=$(get_timeout "favicon" 2>/dev/null || echo "10")
 
-    local tmp_file="/tmp/recon_favicon_$$"
+    local tmp_file
+    tmp_file=$(mktemp "${TMPDIR:-/tmp}/recon_favicon.XXXXXX" 2>/dev/null) || tmp_file="/tmp/recon_favicon_$$"
     local favicon_url="https://$target/favicon.ico"
     local found=false
 
@@ -58,7 +59,16 @@ favicon_run() {
                         ;;
                 esac
 
-                safe_timeout "$timeout" curl -s -L --max-time "$timeout" -o "$tmp_file" "$favicon_url" 2>/dev/null || true
+                # SSRF guard: the favicon href is attacker-controllable (scraped
+                # from remote HTML) and may point at a different host. Refuse to
+                # fetch it if that host is, or resolves to, a private/internal IP.
+                local fav_host
+                fav_host=$(url_host "$favicon_url")
+                if host_is_private "$fav_host"; then
+                    debug "favicon: skipping private/internal favicon host: $fav_host"
+                else
+                    safe_timeout "$timeout" curl -s -L --max-time "$timeout" -o "$tmp_file" "$favicon_url" 2>/dev/null || true
+                fi
             fi
         fi
     fi

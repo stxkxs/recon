@@ -1,5 +1,12 @@
 # Recon Configuration
 # Copy to ~/.config/recon/recon.yaml or ./recon.yaml
+#
+# This file lists every key recon actually reads. Per-module tuning today is
+# limited to: enable/disable, per-operation timeouts, and a handful of
+# wordlist/limit knobs (below). Detection lists (DNS record types, DKIM
+# selectors, port set, tech fingerprints, CORS test origins, security-header
+# set, etc.) are compiled into the modules and are not configurable here.
+# Requires `yq` to be installed; without it, defaults + env vars are used.
 
 global:
   # Directory for storing results
@@ -11,225 +18,106 @@ global:
   # Color output: auto, always, never
   color: "auto"
 
-  # Days to retain old results (0 = keep forever)
-  retention_days: 30
-
-# Timeout settings (in seconds)
+# Timeout settings (in seconds) — one per module/operation.
+# Override individually via RECON_TIMEOUT_<NAME> (e.g. RECON_TIMEOUT_DNS).
 timeouts:
   dns: 5
   http: 10
   ssl: 5
   whois: 15
+  ports: 2
   crt: 15
   waf: 10
   dnssec: 10
   takeover: 15
   shodan: 10
   virustotal: 10
+  wayback: 30
+  securitytrails: 15
+  reverseip: 10
+  asn: 15
+  axfr: 10
+  methods: 10
+  dirs: 10
+  jsanalysis: 15
+  favicon: 10
+  emailsec: 15
 
 # Batch processing settings
 batch:
-  # Maximum parallel processes (1-32)
+  # Maximum parallel processes (1-32). Also settable via RECON_PARALLEL.
   max_parallel: 4
-
-  # Save checkpoint every N targets
-  checkpoint_interval: 10
-
-  # Attempt to resume previous batch on start
-  resume_on_start: true
 
 # Rate limiting
 rate_limits:
-  # General requests per second
-  requests_per_second: 2
-
   # Delay between WHOIS queries (seconds)
   whois_delay: 1
 
-# Module configuration
+# Module configuration.
+# Every module supports `enabled: true|false`. A few carry extra knobs.
 modules:
   dns:
     enabled: true
-    record_types:
-      - A
-      - AAAA
-      - MX
-      - TXT
-      - NS
-      - CAA
-    # DKIM selectors to check
-    dkim_selectors:
-      - google
-      - default
-      - mail
-      - dkim
-      - s1
-      - s2
-      - k1
-      - selector1
-      - selector2
-
   subdomain:
+    enabled: true
+    # Custom wordlist (empty = use built-in etc/subdomains.txt)
+    wordlist: ""
+  ssl:
+    enabled: true
+  http:
+    enabled: true
+  whois:
+    enabled: true
+  files:
+    enabled: true
+  tech:
+    enabled: true
+  ip:
+    enabled: true
+  ports:
+    enabled: true
+  cors:
+    enabled: true
+  score:
+    enabled: true
+  crt:
+    enabled: true
+  shodan:
+    enabled: true
+  virustotal:
+    enabled: true
+  waf:
+    enabled: true
+  dnssec:
+    enabled: true
+  takeover:
+    enabled: true
+  wayback:
+    enabled: true
+  securitytrails:
+    enabled: true
+  reverseip:
+    enabled: true
+  asn:
+    enabled: true
+  axfr:
+    enabled: true
+  methods:
+    enabled: true
+  dirs:
     enabled: true
     # Custom wordlist (empty = use built-in)
     wordlist: ""
-    # Maximum subdomains to check
-    max_checks: 100
-
-  ssl:
+    # Delay between directory requests (seconds)
+    request_delay: 0.2
+  jsanalysis:
     enabled: true
-    # Check these subdomains for SSL
-    check_subdomains:
-      - www
-      - app
-      - api
-
-  http:
+    # Cap on JS files fetched and per-file byte size
+    max_files: 20
+    max_file_size: 2097152
+  favicon:
     enabled: true
-    # URLs to check (relative to target)
-    check_urls:
-      - ""
-      - www
-      - app
-      - api
-    # Maximum redirects to follow
-    max_redirects: 3
-    # Security headers to check
-    security_headers:
-      - strict-transport-security
-      - x-frame-options
-      - x-content-type-options
-      - x-xss-protection
-      - content-security-policy
-      - referrer-policy
-      - permissions-policy
-      - cross-origin-opener-policy
-
-  whois:
-    enabled: true
-    # Fields to extract from WHOIS
-    extract_fields:
-      - orgname
-      - netname
-      - org-name
-      - descr
-      - organization
-      - country
-      - cidr
-
-  files:
-    enabled: true
-    # Common files/endpoints to check
-    paths:
-      - /.well-known/security.txt
-      - /robots.txt
-      - /sitemap.xml
-      - /.well-known/openid-configuration
-      - /.well-known/assetlinks.json
-      - /.well-known/apple-app-site-association
-
-  tech:
-    enabled: true
-    # Frontend frameworks to detect
-    frontend:
-      - react
-      - angular
-      - vue
-      - svelte
-      - ember
-      - backbone
-      - jquery
-      - nextjs
-      - nuxt
-      - gatsby
-      - remix
-    # Analytics/monitoring services to detect
-    analytics:
-      - sentry
-      - datadog
-      - segment
-      - mixpanel
-      - amplitude
-      - intercom
-      - fullstory
-      - hotjar
-      - heap
-      - rollbar
-      - bugsnag
-      - newrelic
-    # CDN/infrastructure to detect
-    infrastructure:
-      - cloudflare
-      - cloudfront
-      - akamai
-      - fastly
-      - vercel
-      - netlify
-      - envoy
-      - nginx
-      - apache
-
-  ip:
-    enabled: true
-    # Perform reverse DNS lookup
-    reverse_dns: true
-    # Include geolocation hints from WHOIS
-    geolocation: true
-
-  ports:
-    enabled: true
-    # Timeout per port check (seconds)
-    timeout: 2
-    # Common ports to scan
-    ports:
-      - 21
-      - 22
-      - 25
-      - 53
-      - 80
-      - 110
-      - 143
-      - 443
-      - 465
-      - 587
-      - 993
-      - 995
-      - 3306
-      - 3389
-      - 5432
-      - 6379
-      - 8080
-      - 8443
-      - 9200
-      - 27017
-
-  cors:
-    enabled: true
-    # Test origins to send
-    test_origins:
-      - "https://evil.com"
-      - "null"
-      - "https://attacker.example.com"
-
-  score:
-    enabled: true
-
-  crt:
-    enabled: true
-
-  waf:
-    enabled: true
-
-  dnssec:
-    enabled: true
-
-  shodan:
-    enabled: true
-
-  virustotal:
-    enabled: true
-
-  takeover:
+  emailsec:
     enabled: true
 
 # API keys for enhanced features

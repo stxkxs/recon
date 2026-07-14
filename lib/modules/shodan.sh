@@ -49,7 +49,7 @@ shodan_run() {
     # If target is not an IP, resolve it
     local ip="$target"
     if ! [[ "$target" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-        ip=$(dig +short "$target" A 2>/dev/null | head -1 || true)
+        ip=$(safe_timeout "$timeout" dig +short "$target" A 2>/dev/null | head -1 || true)
         if [[ -z "$ip" ]] || ! [[ "$ip" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             warn "Shodan: could not resolve $target to an IP address"
             jq -n --arg t "$target" '{
@@ -70,7 +70,7 @@ shodan_run() {
 
     # Query Shodan host endpoint
     local response
-    response=$(safe_timeout "$timeout" curl -s -f "${SHODAN_API_BASE}/shodan/host/${ip}?key=${api_key}" 2>/dev/null || true)
+    response=$(safe_timeout "$timeout" curl -s -f --connect-timeout 5 --max-time "$timeout" "${SHODAN_API_BASE}/shodan/host/${ip}?key=${api_key}" 2>/dev/null || true)
 
     if [[ -z "$response" ]] || ! echo "$response" | jq . >/dev/null 2>&1; then
         warn "Shodan: API request failed or returned invalid data"

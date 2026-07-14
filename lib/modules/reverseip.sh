@@ -27,7 +27,7 @@ reverseip_run() {
     # If target is not an IP, resolve it
     local ip="$target"
     if ! [[ "$target" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-        ip=$(dig +short "$target" A 2>/dev/null | head -1 || true)
+        ip=$(safe_timeout "$timeout" dig +short "$target" A 2>/dev/null | head -1 || true)
         if [[ -z "$ip" ]] || ! [[ "$ip" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             warn "Reverse IP: could not resolve $target to an IP address"
             jq -n --arg t "$target" --arg qt "$query_time" '{
@@ -45,7 +45,7 @@ reverseip_run() {
 
     # Query HackerTarget reverse IP lookup API
     local response
-    response=$(safe_timeout "$timeout" curl -s "https://api.hackertarget.com/reverseiplookup/?q=${ip}" 2>/dev/null || true)
+    response=$(safe_timeout "$timeout" curl -s --connect-timeout 5 --max-time "$timeout" "https://api.hackertarget.com/reverseiplookup/?q=${ip}" 2>/dev/null || true)
 
     # Handle empty response
     if [[ -z "$response" ]]; then

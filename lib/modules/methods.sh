@@ -54,10 +54,11 @@ methods_run() {
         # Send OPTIONS request to get Allow header
         local options_status options_allow
         options_status=$(safe_timeout "$timeout" curl -s -o /dev/null -w "%{http_code}" \
-            -X OPTIONS --max-redirs 0 \
+            -X OPTIONS --max-redirs 0 --connect-timeout 5 --max-time "$timeout" \
             "https://${target}${path}" 2>/dev/null || echo "000")
 
         options_allow=$(safe_timeout "$timeout" curl -s -I -X OPTIONS --max-redirs 0 \
+            --connect-timeout 5 --max-time "$timeout" \
             "https://${target}${path}" 2>/dev/null \
             | grep -i "^allow:" \
             | sed 's/[Aa]llow: //; s/\r//' \
@@ -69,7 +70,7 @@ methods_run() {
         for method in "${METHODS_DANGEROUS[@]}"; do
             local status
             status=$(safe_timeout "$timeout" curl -s -o /dev/null -w "%{http_code}" \
-                -X "$method" --max-redirs 0 --connect-timeout 5 \
+                -X "$method" --max-redirs 0 --connect-timeout 5 --max-time "$timeout" \
                 "https://${target}${path}" 2>/dev/null || echo "000")
 
             if _methods_is_allowed "$status"; then
@@ -79,7 +80,7 @@ methods_run() {
                 # Check for XST vulnerability with TRACE
                 if [[ "$method" == "TRACE" ]]; then
                     local trace_body
-                    trace_body=$(safe_timeout "$timeout" curl -s -X TRACE --max-redirs 0 --connect-timeout 5 \
+                    trace_body=$(safe_timeout "$timeout" curl -s -X TRACE --max-redirs 0 --connect-timeout 5 --max-time "$timeout" \
                         "https://${target}${path}" 2>/dev/null || true)
                     if echo "$trace_body" | grep -qi "TRACE"; then
                         xst_vulnerable=true

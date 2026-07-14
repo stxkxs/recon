@@ -45,6 +45,7 @@ securitytrails_run() {
     # Query domain info endpoint
     local domain_response
     domain_response=$(safe_timeout "$timeout" curl -s -f \
+        --connect-timeout 5 --max-time "$timeout" \
         -H "apikey: ${api_key}" \
         "${SECURITYTRAILS_API_BASE}/domain/${target}" 2>/dev/null || true)
 
@@ -78,6 +79,7 @@ securitytrails_run() {
     # Query subdomains endpoint
     local subdomains_response
     subdomains_response=$(safe_timeout "$timeout" curl -s -f \
+        --connect-timeout 5 --max-time "$timeout" \
         -H "apikey: ${api_key}" \
         "${SECURITYTRAILS_API_BASE}/domain/${target}/subdomains" 2>/dev/null || true)
 
@@ -94,6 +96,7 @@ securitytrails_run() {
     # Query associated domains endpoint
     local associated_response
     associated_response=$(safe_timeout "$timeout" curl -s -f \
+        --connect-timeout 5 --max-time "$timeout" \
         -H "apikey: ${api_key}" \
         "${SECURITYTRAILS_API_BASE}/domain/${target}/associated" 2>/dev/null || true)
 

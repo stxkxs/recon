@@ -37,6 +37,7 @@ services:
       # API keys (optional)
       - RECON_API_SHODAN=${RECON_API_SHODAN:-}
       - RECON_API_SECURITYTRAILS=${RECON_API_SECURITYTRAILS:-}
+      - RECON_API_VIRUSTOTAL=${RECON_API_VIRUSTOTAL:-}
 
     # Network settings
     networks:

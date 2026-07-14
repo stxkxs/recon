@@ -3,11 +3,10 @@
 A fast, modular infrastructure reconnaissance toolkit for SRE and security teams.
 
 ```
-                                     _
- _ __   ___   ___   ___   _ __    __| |
-| '__| / _ \ / __| / _ \ | '_ \  / _` |
-| |   |  __/| (__ | (_) || | | || (_| |
-|_|    \___| \___| \___/ |_| |_| \__,_|
+ _ __   ___   ___   ___   _ __
+| '__| / _ \ / __| / _ \ | '_ \
+| |   |  __/| (__ | (_) || | | |
+|_|    \___| \___| \___/ |_| |_|
 ```
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
@@ -380,7 +379,6 @@ global:
   output_dir: "~/.local/share/recon/results"
   output_format: "terminal"  # terminal | json
   color: "auto"              # auto | always | never
-  retention_days: 30
 
 timeouts:
   dns: 5
@@ -388,20 +386,17 @@ timeouts:
   ssl: 5
   whois: 15
   ports: 2
+  # ...one key per module; see etc/recon.yaml.example for the full set
 
 batch:
   max_parallel: 4
-  checkpoint_interval: 10
-  resume_on_start: true
 
 rate_limits:
-  requests_per_second: 2
   whois_delay: 1
 
 modules:
   dns:
     enabled: true
-    record_types: [A, AAAA, MX, TXT, NS, CAA]
   subdomain:
     enabled: true
     wordlist: ""  # empty = use built-in
@@ -474,11 +469,24 @@ See [`etc/recon.yaml.example`](etc/recon.yaml.example) for the full template.
 Environment variables override config file values:
 
 ```bash
-export RECON_OUTPUT_FORMAT=json
-export RECON_COLOR=never
+# Global
+export RECON_OUTPUT_FORMAT=json      # terminal | json | both
+export RECON_COLOR=never             # auto | always | never
+export RECON_OUTPUT_DIR=~/scans      # where results are written
+export RECON_CONFIG_FILE=./my.yaml   # explicit config file path
+export RECON_DEBUG=1                 # emit debug logging to stderr
+export RECON_PARALLEL=8              # batch worker count (1-32)
+
+# Per-operation timeouts (seconds) — one per module, RECON_TIMEOUT_<NAME>
 export RECON_TIMEOUT_DNS=10
 export RECON_TIMEOUT_HTTP=20
-export RECON_PARALLEL=8
+export RECON_TIMEOUT_SSL=5
+export RECON_TIMEOUT_WHOIS=15
+# ...also: CRT, WAF, DNSSEC, TAKEOVER, SHODAN, VIRUSTOTAL, WAYBACK,
+# SECURITYTRAILS, REVERSEIP, ASN, AXFR, METHODS, DIRS, JSANALYSIS,
+# FAVICON, EMAILSEC
+
+# API keys
 export RECON_API_SHODAN=your_api_key
 export RECON_API_VIRUSTOTAL=your_api_key
 export RECON_API_SECURITYTRAILS=your_api_key
@@ -665,7 +673,7 @@ bash tests/test_output.sh       # JSON output
 bash tests/test_modules.sh      # All 27 modules
 bash tests/test_integration.sh  # End-to-end
 bash tests/test_shodan.sh       # Individual module tests
-# ... 20 test files, 873 tests total
+# ...one test suite per module, plus input/output/integration harnesses
 
 # Lint with shellcheck
 make lint

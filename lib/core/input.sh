@@ -214,6 +214,64 @@ is_private_ip() {
     return 1
 }
 
+# Extract the host portion from a URL or authority string
+# Strips scheme, userinfo, path, query, fragment, and port
+# Usage: host=$(url_host "https://user@example.com:8443/path")
+url_host() {
+    local url=$1
+    url=${url#*://}     # strip scheme
+    url=${url#*@}       # strip userinfo
+    url=${url%%/*}      # strip path
+    url=${url%%\?*}     # strip query
+    url=${url%%#*}      # strip fragment
+    url=${url%%:*}      # strip port
+    echo "$url"
+}
+
+# Check whether a host (literal IP or domain) is, or resolves to, a
+# private/internal address. Used as an SSRF guard before connecting to
+# redirect targets or externally-discovered URLs.
+# Returns 0 (true) if private/internal, 1 otherwise.
+# Usage: if host_is_private "internal.corp.example"; then ...
+host_is_private() {
+    local host=$1
+    [[ -z "$host" ]] && return 1
+
+    local type
+    type=$(detect_input_type "$host")
+
+    case "$type" in
+        "$INPUT_TYPE_IPV4")
+            is_private_ip "$host"
+            return $?
+            ;;
+        "$INPUT_TYPE_IPV6")
+            # Loopback (::1), link-local (fe80::/10), unique-local (fc00::/7)
+            case "$host" in
+                ::1|[Ff][Ee]8[0-9a-fA-F]:*|[Ff][Ee][9abAB][0-9a-fA-F]:*|[Ff][Cc][0-9a-fA-F][0-9a-fA-F]:*|[Ff][Dd][0-9a-fA-F][0-9a-fA-F]:*)
+                    return 0
+                    ;;
+            esac
+            return 1
+            ;;
+    esac
+
+    # Domain: resolve A records and flag if any point to a private range
+    local ips
+    ips=$(safe_timeout 5 dig +short "$host" A 2>/dev/null | grep -E '^[0-9.]+$' || true)
+    [[ -z "$ips" ]] && return 1
+
+    local ip
+    while IFS= read -r ip; do
+        [[ -z "$ip" ]] && continue
+        if is_private_ip "$ip"; then
+            return 0
+        fi
+    done <<< "$ips"
+
+    return 1
+}
+
 # Read targets from a file, one per line
 # Normalizes each target and filters invalid ones
 # Usage: readarray -t targets < <(read_targets_file "targets.txt")

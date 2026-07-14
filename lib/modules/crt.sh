@@ -26,7 +26,7 @@ crt_run() {
 
     # Query crt.sh API
     local raw_response
-    raw_response=$(safe_timeout "$timeout" curl -s "https://crt.sh/?q=%25.${domain}&output=json" 2>/dev/null || true)
+    raw_response=$(safe_timeout "$timeout" curl -s --connect-timeout 5 --max-time "$timeout" "https://crt.sh/?q=%25.${domain}&output=json" 2>/dev/null || true)
 
     # Handle empty or error response
     if [[ -z "$raw_response" ]] || ! echo "$raw_response" | jq . >/dev/null 2>&1; then
