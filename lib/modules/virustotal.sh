@@ -58,6 +58,7 @@ virustotal_run() {
     # Make API request
     local response http_code body
     response=$(safe_timeout "$timeout" curl -s -w "\n%{http_code}" \
+        --connect-timeout 5 --max-time "$timeout" \
         -H "x-apikey: ${api_key}" \
         "${endpoint}" 2>/dev/null) || {
         warn "VirusTotal: Request timed out or failed"

@@ -34,7 +34,7 @@ wayback_run() {
 
     # Query Wayback Machine CDX API
     local raw_response
-    raw_response=$(safe_timeout "$timeout" curl -s "${WAYBACK_CDX_BASE}?url=*.${domain}&output=json&fl=original&collapse=urlkey&limit=5000" 2>/dev/null || true)
+    raw_response=$(safe_timeout "$timeout" curl -s --connect-timeout 5 --max-time "$timeout" "${WAYBACK_CDX_BASE}?url=*.${domain}&output=json&fl=original&collapse=urlkey&limit=5000" 2>/dev/null || true)
 
     # Handle empty response
     if [[ -z "$raw_response" ]]; then

@@ -1,0 +1,15 @@
+# Keep the build context minimal — the Dockerfile only copies bin/, lib/, and etc/
+.git
+.github
+.gitignore
+results/
+state/
+tests/
+docs/
+*.log
+*.json
+*.bak
+recon.yaml
+recon.yml
+.recon.yaml
+.recon.yml

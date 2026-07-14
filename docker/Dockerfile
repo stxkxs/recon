@@ -7,9 +7,13 @@
 
 FROM alpine:3.19
 
-LABEL maintainer="SRE Team"
+# Version is supplied at build time so the label can't drift from RECON_VERSION:
+#   docker build --build-arg VERSION="$(grep -oE 'RECON_VERSION="[^"]+"' lib/core/common.sh | cut -d'"' -f2)" ...
+ARG VERSION="dev"
+
+LABEL maintainer="stxkxs"
 LABEL description="Infrastructure reconnaissance toolkit"
-LABEL version="2.1.0"
+LABEL version="${VERSION}"
 
 # Install dependencies
 RUN apk add --no-cache \

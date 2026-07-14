@@ -1,0 +1,49 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  lint:
+    name: shellcheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install shellcheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+      - name: Lint (fail on errors)
+        run: shellcheck --severity=error -x bin/recon lib/core/*.sh lib/batch/*.sh lib/modules/*.sh
+
+  test:
+    name: offline tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y jq bind9-dnsutils curl openssl whois coreutils
+      - name: Run offline test suites
+        # test_integration.sh hits live third-party APIs and is intentionally
+        # excluded from CI to keep the pipeline hermetic and non-flaky.
+        run: |
+          set -euo pipefail
+          fail=0
+          for t in tests/test_*.sh; do
+            [[ "$t" == "tests/test_integration.sh" ]] && continue
+            echo "== $t =="
+            bash "$t" || fail=1
+          done
+          exit $fail
+
+  syntax:
+    name: bash syntax
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: bash -n on every script
+        run: |
+          set -euo pipefail
+          for f in bin/recon lib/core/*.sh lib/batch/*.sh lib/modules/*.sh tests/*.sh; do
+            bash -n "$f"
+          done

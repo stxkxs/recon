@@ -263,6 +263,12 @@ run_recon() {
             continue
         fi
 
+        # Honor per-module enable/disable from config
+        if ! module_enabled "$module"; then
+            debug "Skipping disabled module: $module"
+            continue
+        fi
+
         # Parse module functions
         IFS=':' read -r run_func print_func check_func <<< "${MODULES[$module]}"
 
@@ -298,7 +304,7 @@ run_recon() {
     done
 
     # Run email security analysis if requested (post-scan module)
-    if [[ " ${modules_to_run[*]} " == *" emailsec "* ]]; then
+    if [[ " ${modules_to_run[*]} " == *" emailsec "* ]] && module_enabled "emailsec"; then
         local pre_emailsec_json
         pre_emailsec_json=$(echo "$json_result" | json_finalize)
         local emailsec_result
@@ -315,7 +321,7 @@ run_recon() {
     fi
 
     # Run security scoring if requested
-    if [[ "$run_score" == "true" ]]; then
+    if [[ "$run_score" == "true" ]] && module_enabled "score"; then
         # Finalize first to get complete JSON for scoring
         local pre_score_json
         pre_score_json=$(echo "$json_result" | json_finalize)
@@ -335,7 +341,7 @@ run_recon() {
     fi
 
     # Run takeover detection if requested
-    if [[ " ${modules_to_run[*]} " == *" takeover "* ]]; then
+    if [[ " ${modules_to_run[*]} " == *" takeover "* ]] && module_enabled "takeover"; then
         local pre_takeover_json
         pre_takeover_json=$(echo "$json_result" | json_finalize)
         local takeover_result
@@ -448,6 +454,18 @@ main() {
 
     # Load configuration
     load_config "$config_file"
+
+    # Validate configuration (output format, color, parallel bounds)
+    if ! validate_config; then
+        error "Configuration validation failed"
+        exit 1
+    fi
+
+    # Validate CLI --parallel worker count before it reaches xargs -P
+    if ! [[ "$parallel" =~ ^[0-9]+$ ]] || (( parallel < 1 || parallel > 32 )); then
+        error "Invalid --parallel value: '$parallel' (must be an integer between 1 and 32)"
+        exit 1
+    fi
 
     # Apply output format
     export RECON_OUTPUT_FORMAT="$output_format"

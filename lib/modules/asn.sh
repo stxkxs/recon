@@ -25,7 +25,7 @@ asn_run() {
     # If target is not an IP, resolve it
     local ip="$target"
     if ! [[ "$target" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-        ip=$(dig +short "$target" A 2>/dev/null | head -1 || true)
+        ip=$(safe_timeout "$timeout" dig +short "$target" A 2>/dev/null | head -1 || true)
         if [[ -z "$ip" ]] || ! [[ "$ip" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             warn "ASN: could not resolve $target to an IP address"
             jq -n --arg t "$target" '{
@@ -48,7 +48,7 @@ asn_run() {
     local reversed="${o4}.${o3}.${o2}.${o1}"
 
     local cymru_response
-    cymru_response=$(dig +short "${reversed}.origin.asinfo.cymru.com" TXT 2>/dev/null || true)
+    cymru_response=$(safe_timeout "$timeout" dig +short "${reversed}.origin.asinfo.cymru.com" TXT 2>/dev/null || true)
 
     if [[ -z "$cymru_response" ]]; then
         warn "ASN: Team Cymru lookup returned no data for $ip"
@@ -91,7 +91,7 @@ asn_run() {
 
     # Step 2: Get ASN name via Cymru lookup
     local asn_name_response asn_name
-    asn_name_response=$(dig +short "AS${asn_number}.asn.cymru.com" TXT 2>/dev/null || true)
+    asn_name_response=$(safe_timeout "$timeout" dig +short "AS${asn_number}.asn.cymru.com" TXT 2>/dev/null || true)
 
     if [[ -n "$asn_name_response" ]]; then
         # Remove quotes and extract the name (last field after the last pipe)

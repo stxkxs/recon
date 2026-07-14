@@ -33,12 +33,10 @@ _init_config_defaults() {
     RECON_CONFIG[batch.resume_on_start]="true"
 
     # Rate limits
-    RECON_CONFIG[rate_limits.requests_per_second]="2"
     RECON_CONFIG[rate_limits.whois_delay]="1"
 
     # Module settings
     RECON_CONFIG[modules.dns.enabled]="true"
-    RECON_CONFIG[modules.dns.record_types]="A,AAAA,MX,TXT,NS,CAA"
     RECON_CONFIG[modules.subdomain.enabled]="true"
     RECON_CONFIG[modules.subdomain.wordlist]=""
     RECON_CONFIG[modules.ssl.enabled]="true"
@@ -101,6 +99,24 @@ _has_yq() {
     command -v yq &>/dev/null
 }
 
+# Detect which yq is installed. The two common tools take different query
+# syntax: mikefarah/yq (Go) uses `.a.b` and returns `null` for a missing key;
+# kislyuk/yq (a jq wrapper, "python") needs `.a.b // empty`. Getting this wrong
+# makes every lookup error out and the whole config file silently ignored.
+# Cached after first detection.
+_yq_flavor() {
+    if [[ -n "${_RECON_YQ_FLAVOR:-}" ]]; then
+        echo "$_RECON_YQ_FLAVOR"
+        return 0
+    fi
+    if yq --version 2>&1 | grep -qi 'mikefarah'; then
+        _RECON_YQ_FLAVOR="mikefarah"
+    else
+        _RECON_YQ_FLAVOR="python"
+    fi
+    echo "$_RECON_YQ_FLAVOR"
+}
+
 # Load a value from YAML file
 # Usage: value=$(_yaml_get "path.to.key" "/path/to/config.yaml")
 _yaml_get() {
@@ -111,12 +127,14 @@ _yaml_get() {
         return 1
     fi
 
-    # Convert dot notation to yq path
-    local yq_path
-    yq_path=$(echo "$path" | sed 's/\./\./g')
-
     local value
-    value=$(yq -r ".$yq_path // empty" "$file" 2>/dev/null)
+    if [[ "$(_yq_flavor)" == "mikefarah" ]]; then
+        # Go yq: no `empty` keyword; missing keys already come back as `null`,
+        # which the check below filters out.
+        value=$(yq -r ".$path" "$file" 2>/dev/null)
+    else
+        value=$(yq -r ".$path // empty" "$file" 2>/dev/null)
+    fi
 
     if [[ -n "$value" ]] && [[ "$value" != "null" ]]; then
         echo "$value"
@@ -169,6 +187,15 @@ load_config() {
     # Find config file if not specified
     if [[ -z "$config_file" ]]; then
         config_file=$(find_config_file) || true
+    fi
+
+    # Warn if the config file (which may hold API keys) is readable by others
+    if [[ -n "$config_file" ]] && [[ -f "$config_file" ]]; then
+        local perms
+        perms=$(stat -f '%Lp' "$config_file" 2>/dev/null || stat -c '%a' "$config_file" 2>/dev/null || echo "")
+        if [[ -n "$perms" ]] && [[ "${perms: -2}" != "00" ]]; then
+            warn "Config file $config_file is group/world-readable (mode $perms); it may contain API keys — chmod 600 recommended"
+        fi
     fi
 
     # Load from file if available and yq is present

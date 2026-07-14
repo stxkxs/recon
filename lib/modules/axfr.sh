@@ -24,7 +24,7 @@ axfr_run() {
 
     # Step 1: Get nameservers for the target
     local ns_output
-    ns_output=$(dig +short "$target" NS 2>/dev/null || true)
+    ns_output=$(safe_timeout "$timeout" dig +short "$target" NS 2>/dev/null || true)
 
     # Clean nameserver entries: remove trailing dots, filter empty lines
     local nameservers=()
