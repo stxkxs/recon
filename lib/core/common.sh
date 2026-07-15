@@ -11,7 +11,7 @@
 _RECON_COMMON_LOADED=1
 
 # Version
-readonly RECON_VERSION="2.1.0"
+readonly RECON_VERSION="2.2.0"
 
 # Colors for output (auto-detect terminal support or force with RECON_COLOR=always)
 if [[ -t 1 ]] || [[ "${RECON_COLOR:-auto}" == "always" ]]; then

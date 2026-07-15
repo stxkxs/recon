@@ -497,7 +497,7 @@ export RECON_API_SECURITYTRAILS=your_api_key
 ```json
 {
   "meta": {
-    "version": "2.1.0",
+    "version": "2.2.0",
     "run_id": "20240201-143022-a1b2c3",
     "started_at": "2024-02-01T14:30:22Z",
     "ended_at": "2024-02-01T14:31:45Z",
