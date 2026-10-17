@@ -10,7 +10,7 @@ jobs:
     name: shellcheck
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Install shellcheck
         run: sudo apt-get update && sudo apt-get install -y shellcheck
       - name: Lint (fail on errors)
@@ -20,7 +20,7 @@ jobs:
     name: offline tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Install dependencies
         run: sudo apt-get update && sudo apt-get install -y jq bind9-dnsutils curl openssl whois coreutils
       - name: Run offline test suites
@@ -36,11 +36,23 @@ jobs:
           done
           exit $fail
 
+  image:
+    name: docker image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Build image
+        run: |
+          set -euo pipefail
+          version="$(grep -oE 'RECON_VERSION="[^"]+"' lib/core/common.sh | cut -d'"' -f2)"
+          docker build -t recon:ci -f docker/Dockerfile --build-arg "VERSION=${version}" .
+          docker run --rm recon:ci --version
+
   syntax:
     name: bash syntax
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: bash -n on every script
         run: |
           set -euo pipefail
