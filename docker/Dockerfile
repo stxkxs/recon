@@ -5,7 +5,7 @@
 #        docker run --rm -it recon:latest --json example.com
 #
 
-FROM alpine:3.19
+FROM alpine:3.24.2
 
 # Version is supplied at build time so the label can't drift from RECON_VERSION:
 #   docker build --build-arg VERSION="$(grep -oE 'RECON_VERSION="[^"]+"' lib/core/common.sh | cut -d'"' -f2)" ...
