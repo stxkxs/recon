@@ -196,8 +196,7 @@ echo "--- print function ---"
 
 # Test that asn_print handles error JSON gracefully
 ((TESTS_RUN++)) || true
-print_output=$(asn_print "$result" "example.com" 2>&1 || true)
-if [[ $? -eq 0 ]] || true; then
+if asn_print "$result" "example.com" >/dev/null 2>&1; then
     ((TESTS_PASSED++)) || true
     echo -e "${GREEN}✓${NC} asn_print handles error JSON without crashing"
 else

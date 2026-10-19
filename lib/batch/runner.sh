@@ -57,13 +57,15 @@ batch_process_target() {
 export -f batch_process_target 2>/dev/null || true
 
 # Run batch processing
-# Usage: batch_run "targets_file" [options]
+# Usage: batch_run "targets_file" [parallel] [output_dir] [modules] [resume] [use_lock]
+# Pass use_lock true when the caller was given --lock.
 batch_run() {
     local targets_file=$1
     local parallel=${2:-4}
     local output_dir=${3:-"./results"}
     local modules=${4:-""}
     local resume=${5:-false}
+    local use_lock=${6:-false}
 
     # Validate targets file
     if [[ ! -f "$targets_file" ]]; then
@@ -131,14 +133,13 @@ batch_run() {
         state_create_checkpoint "$batch_id" "$targets_file" "${targets[@]}" >/dev/null
     fi
 
-    # Try to acquire lock
-    if ! state_acquire_lock "$batch_id" 5; then
-        error "Another batch process is running for this file"
-        return 1
+    if [[ "$use_lock" == true ]]; then
+        if ! state_acquire_lock "$batch_id" 5; then
+            error "Another batch process is running for this file"
+            return 1
+        fi
+        trap 'state_release_lock "$batch_id"' EXIT
     fi
-
-    # Ensure lock is released on exit
-    trap 'state_release_lock "$batch_id"' EXIT
 
     info "Starting batch: $batch_id"
     info "Total targets: $total"
@@ -229,9 +230,10 @@ HELPER_EOF
 
     info "Results saved to: $output_dir"
 
-    # Release lock
-    state_release_lock "$batch_id"
-    trap - EXIT
+    if [[ "$use_lock" == true ]]; then
+        state_release_lock "$batch_id"
+        trap - EXIT
+    fi
 
     return 0
 }
@@ -259,7 +261,9 @@ batch_list() {
 }
 
 # Resume most recent interrupted batch
+# Usage: batch_resume [use_lock]
 batch_resume() {
+    local use_lock=${1:-false}
     state_init 2>/dev/null || return 1
 
     # Find most recent incomplete batch
@@ -300,5 +304,5 @@ batch_resume() {
     local output_dir
     output_dir=$(config_get "global.output_dir" "./results")
 
-    batch_run "$targets_file" "$parallel" "$output_dir" "" true
+    batch_run "$targets_file" "$parallel" "$output_dir" "" true "$use_lock"
 }

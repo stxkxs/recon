@@ -177,8 +177,7 @@ error_json=$(jq -n '{
 }')
 
 ((TESTS_RUN++)) || true
-print_output=$(reverseip_print "$error_json" "nonexistent.invalid" 2>&1 || true)
-if [[ $? -eq 0 ]] || true; then
+if reverseip_print "$error_json" "nonexistent.invalid" >/dev/null 2>&1; then
     ((TESTS_PASSED++)) || true
     echo -e "${GREEN}✓${NC} reverseip_print handles error JSON without crashing"
 else

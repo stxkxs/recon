@@ -176,8 +176,7 @@ empty_result=$(jq -n '{
 }')
 
 ((TESTS_RUN++)) || true
-print_output=$(wayback_print "$empty_result" "example.com" 2>&1 || true)
-if [[ $? -eq 0 ]] || true; then
+if wayback_print "$empty_result" "example.com" >/dev/null 2>&1; then
     ((TESTS_PASSED++)) || true
     echo -e "${GREEN}✓${NC} wayback_print handles empty result without crashing"
 else

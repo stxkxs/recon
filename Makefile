@@ -94,14 +94,11 @@ test-quick: ## Run quick unit tests only
 	@if [ -f tests/test_output.sh ]; then bash tests/test_output.sh; fi
 
 .PHONY: lint
-lint: ## Run shellcheck on all scripts
+lint: ## Run shellcheck; fail on errors
 	@echo -e "$(BLUE)Running shellcheck...$(NC)"
-	@if command -v shellcheck &>/dev/null; then \
-		shellcheck -x bin/recon $(LIBS) 2>&1 || true; \
-		echo -e "$(GREEN)Lint complete$(NC)"; \
-	else \
-		echo -e "$(YELLOW)shellcheck not installed, skipping$(NC)"; \
-	fi
+	@command -v shellcheck >/dev/null || { echo -e "$(YELLOW)shellcheck is required$(NC)"; exit 1; }
+	@shellcheck --severity=error -x bin/recon $(LIBS) \
+		&& echo -e "$(GREEN)Lint complete$(NC)"
 
 .PHONY: check-deps
 check-deps: ## Check for required dependencies
