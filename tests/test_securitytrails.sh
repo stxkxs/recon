@@ -205,8 +205,7 @@ echo "--- print function ---"
 
 # Test that securitytrails_print handles error JSON gracefully
 ((TESTS_RUN++)) || true
-print_output=$(securitytrails_print "$result" "example.com" 2>&1 || true)
-if [[ $? -eq 0 ]] || true; then
+if securitytrails_print "$result" "example.com" >/dev/null 2>&1; then
     ((TESTS_PASSED++)) || true
     echo -e "${GREEN}✓${NC} securitytrails_print handles error JSON without crashing"
 else

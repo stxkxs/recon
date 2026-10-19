@@ -472,7 +472,7 @@ main() {
 
     # Handle resume
     if [[ "$resume" == true ]]; then
-        batch_resume
+        batch_resume "$use_lock"
         exit $?
     fi
 
@@ -480,7 +480,7 @@ main() {
     if [[ -n "$batch_file" ]]; then
         local output_dir
         output_dir=$(config_get "global.output_dir" "./results")
-        batch_run "$batch_file" "$parallel" "$output_dir" "$modules" false
+        batch_run "$batch_file" "$parallel" "$output_dir" "$modules" false "$use_lock"
         exit $?
     fi
 
